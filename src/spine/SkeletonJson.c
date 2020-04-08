@@ -595,16 +595,16 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 	FREE(self->error);
 	CONST_CAST(char*, self->error) = 0;
 	internal->linkedMeshCount = 0;
-	//_spPrintLine("free _spSkeletonJson->error");
+	
 	root = Json_create(json);
-	//_spPrintLine("created json");
+	
 	if (!root) {
 		_spSkeletonJson_setError(self, 0, "Invalid skeleton JSON: ", Json_getError());
 		return 0;
 	}
 
 	skeletonData = spSkeletonData_create();
-	//_spPrintLine("created spSkeletonData");
+	
 	skeleton = Json_getItem(root, "skeleton");
 	if (skeleton) {
 		MALLOC_STR(skeletonData->hash, Json_getString(skeleton, "hash", 0));
@@ -761,7 +761,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 			skeletonData->ikConstraints[i] = data;
 		}
 	}
-	//_spPrintLine("finished Json_getItem ik");
+	
 	/* Transform constraints. */
 	transform = Json_getItem(root, "transform");
 	if (transform) {
@@ -812,7 +812,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 			skeletonData->transformConstraints[i] = data;
 		}
 	}
-	//_spPrintLine("finished Json_getItem transform");
+	
 	/* Path constraints */
 	pathJson = Json_getItem(root, "path");
 	if (pathJson) {
@@ -872,7 +872,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 			skeletonData->pathConstraints[i] = data;
 		}
 	}
-	//_spPrintLine("finished Json_getItem path");
+	
 	/* Skins. */
 	skins = Json_getItem(root, "skins");
 	if (skins) {
@@ -882,9 +882,9 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 			Json *attachmentsMap;
 			Json *curves;
 			Json *skinPart;
-			//_spPrintLine("before spSkin_create");
+			
 			spSkin *skin = spSkin_create(Json_getString(skinMap, "name", ""));
-			//_spPrintLine("before Json_getItem(skinMap, \"bones\")");
+			
 			skinPart = Json_getItem(skinMap, "bones");
 			if (skinPart) {
 				for(skinPart = skinPart->child; skinPart; skinPart = skinPart->next) {
@@ -897,7 +897,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 					spBoneDataArray_add(skin->bones, bone);
 				}
 			}
-			//_spPrintLine("before Json_getItem(skinMap, \"ik\")");
+			;
 			skinPart = Json_getItem(skinMap, "ik");
 			if (skinPart) {
 				for(skinPart = skinPart->child; skinPart; skinPart = skinPart->next) {
@@ -910,7 +910,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 					spIkConstraintDataArray_add(skin->ikConstraints, constraint);
 				}
 			}
-			//_spPrintLine("before Json_getItem(skinMap, \"path\")");
+			
 			skinPart = Json_getItem(skinMap, "path");
 			if (skinPart) {
 				for(skinPart = skinPart->child; skinPart; skinPart = skinPart->next) {
@@ -923,7 +923,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 					spPathConstraintDataArray_add(skin->pathConstraints, constraint);
 				}
 			}
-			//_spPrintLine("before Json_getItem(skinMap, \"transform\")");
+			
 			skinPart = Json_getItem(skinMap, "transform");
 			if (skinPart) {
 				for(skinPart = skinPart->child; skinPart; skinPart = skinPart->next) {
@@ -939,7 +939,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 
 			skeletonData->skins[skeletonData->skinsCount++] = skin;
 			if (strcmp(skin->name, "default") == 0) skeletonData->defaultSkin = skin;
-			//_spPrintLine("before Json_getItem(skinMap, \"attachments\")");
+			
 			Json* tempAttachments = Json_getItem(skinMap, "attachments");
 			if (tempAttachments)
 			{
@@ -1122,7 +1122,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 			}
 		}
 	}
-	//_spPrintLine("finished Json_getItem skin");
+	
 	/* Linked meshes. */
 	for (i = 0; i < internal->linkedMeshCount; i++) {
 		spAttachment* parent;
@@ -1144,7 +1144,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 		spMeshAttachment_updateUVs(linkedMesh->mesh);
 		spAttachmentLoader_configureAttachment(self->attachmentLoader, SUPER(SUPER(linkedMesh->mesh)));
 	}
-	//_spPrintLine("linked meshes");
+	
 	/* Events. */
 	events = Json_getItem(root, "events");
 	if (events) {
@@ -1168,7 +1168,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 			skeletonData->events[i] = eventData;
 		}
 	}
-	//_spPrintLine("finished Json_getItem events");
+	
 	/* Animations. */
 	animations = Json_getItem(root, "animations");
 	if (animations) {
@@ -1183,8 +1183,8 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 			skeletonData->animations[skeletonData->animationsCount++] = animation;
 		}
 	}
-	//_spPrintLine("finished Json_getItem animations");
+	
 	Json_dispose(root);
-	//_spPrintLine("Json_dispose root");
+	
 	return skeletonData;
 }

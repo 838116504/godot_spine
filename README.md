@@ -1,8 +1,27 @@
-This module adds [Spine](http://esotericsoftware.com/) animation support for godot game engine 3.0. It has been tested with Godot 3.0.2, but may contain bugs.
-The 2.1 module is also avaiable in the [2.1 branch](https://github.com/GodotExplorer/spine/tree/2.1)
+This branch changed many things.
 
-Current Spine runtime version for master branch **3.6.52.1** ([Github link](https://github.com/EsotericSoftware/spine-runtimes/tree/spine-libgdx-3.6.52.1)).
-Current Spine runtime version for 2.1 branch **3.5.51**.
+I dont test any thing, so it maybe have bugs.
+
+Current Spine runtime version for this branch ** 3.8 ** ([Github link](https://github.com/EsotericSoftware/spine-runtimes/tree/3.8/spine-c)).
+This branch support for godot game engine 3.2.1
+
+## Spine Runtime changed by myself
+
+Fix the problem when load json that have skin no attachment(SkeletonJson.c >> spSkeletonJson_readSkeletonData function changed).
+
+Modify spAnimationStateData_setMixByName function return type to int for check whether set success(AnimationStateData.c and AnimationStateData.h changed).
+
+Added 6 add/set animation function for set spTrackEntry's userData before animation start.(AnimationState.h and AnimationState.c >> spAnimationState_setAnimationByNameWithData, spAnimationState_setAnimationByName, spAnimationState_setAnimationWithData, spAnimationState_setAnimation, spAnimationState_addAnimationByName, spAnimationState_addAnimationByNameWithData, spAnimationState_addAnimation, spAnimationState_addAnimationWithData functions changed.).
+
+## Chinese doc(unfinished)
+[Spine](https://shimo.im/docs/y8Pwd36PwxkJTjw3/)
+[SpineAnimationAttri](https://shimo.im/docs/qvyHdkRQ9tyctWhc/)
+[SpineAnimation](https://shimo.im/docs/pVjY9hGQr36pCG6c/)
+[SpineSkeletonData](https://shimo.im/docs/JWD6y866DT9wyCxC/)
+[SpineAtlas](https://shimo.im/docs/q8qhR3yKDccdXCWp/)
+[SpineBinarySkeleton](https://shimo.im/docs/jWVvccdtv6PKVDrk/)
+[SpineJsonSkeleton](https://shimo.im/docs/xXYQrr9GW6TkHHCv/)
+[SpineSkeleton](https://shimo.im/docs/3YtjHxKTW6KdXwJG/)
 
 ## About the license
 

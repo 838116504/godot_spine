@@ -55,7 +55,7 @@ typedef struct spAnimationStateData {
 SP_API spAnimationStateData* spAnimationStateData_create (spSkeletonData* skeletonData);
 SP_API void spAnimationStateData_dispose (spAnimationStateData* self);
 
-SP_API void spAnimationStateData_setMixByName (spAnimationStateData* self, const char* fromName, const char* toName, float duration);
+SP_API int spAnimationStateData_setMixByName (spAnimationStateData* self, const char* fromName, const char* toName, float duration);
 SP_API void spAnimationStateData_setMix (spAnimationStateData* self, spAnimation* from, spAnimation* to, float duration);
 /* Returns 0 if there is no mixing between the animations. */
 SP_API float spAnimationStateData_getMix (spAnimationStateData* self, spAnimation* from, spAnimation* to);

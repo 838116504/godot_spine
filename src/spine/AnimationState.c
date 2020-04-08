@@ -697,13 +697,20 @@ void _spAnimationState_setCurrent (spAnimationState* self, int index, spTrackEnt
 	_spEventQueue_start(internal->queue, current);
 }
 
+spTrackEntry* spAnimationState_setAnimationByNameWithData(spAnimationState* self, int trackIndex, const char* animationName, int/*bool*/loop, void* userData)
+{
+	spAnimation* animation = spSkeletonData_findAnimation(self->data->skeletonData, animationName);
+	return spAnimationState_setAnimationWithData(self, trackIndex, animation, loop, userData);
+}
+
 /** Set the current animation. Any queued animations are cleared. */
 spTrackEntry* spAnimationState_setAnimationByName (spAnimationState* self, int trackIndex, const char* animationName, int/*bool*/loop) {
 	spAnimation* animation = spSkeletonData_findAnimation(self->data->skeletonData, animationName);
 	return spAnimationState_setAnimation(self, trackIndex, animation, loop);
 }
 
-spTrackEntry* spAnimationState_setAnimation (spAnimationState* self, int trackIndex, spAnimation* animation, int/*bool*/loop) {
+spTrackEntry* spAnimationState_setAnimationWithData(spAnimationState* self, int trackIndex, spAnimation* animation, int/*bool*/loop, void* userData)
+{
 	spTrackEntry* entry;
 	_spAnimationState* internal = SUB_CAST(_spAnimationState, self);
 	int interrupt = 1;
@@ -721,9 +728,14 @@ spTrackEntry* spAnimationState_setAnimation (spAnimationState* self, int trackIn
 			_spAnimationState_disposeNext(self, current);
 	}
 	entry = _spAnimationState_trackEntry(self, trackIndex, animation, loop, current);
+	entry->userData = userData;
 	_spAnimationState_setCurrent(self, trackIndex, entry, interrupt);
 	_spEventQueue_drain(internal->queue);
 	return entry;
+}
+
+spTrackEntry* spAnimationState_setAnimation (spAnimationState* self, int trackIndex, spAnimation* animation, int/*bool*/loop) {
+	return spAnimationState_setAnimationWithData(self, trackIndex, animation, loop, NULL);
 }
 
 /** Adds an animation to be played delay seconds after the current or last queued animation, taking into account any mix
@@ -782,6 +794,13 @@ spTrackEntry* spAnimationState_addAnimationWithData (spAnimationState* self, int
 
 spTrackEntry* spAnimationState_setEmptyAnimation(spAnimationState* self, int trackIndex, float mixDuration) {
 	spTrackEntry* entry = spAnimationState_setAnimation(self, trackIndex, SP_EMPTY_ANIMATION, 0);
+	entry->mixDuration = mixDuration;
+	entry->trackEnd = mixDuration;
+	return entry;
+}
+
+spTrackEntry* spAnimationState_setEmptyAnimationWithData(spAnimationState* self, int trackIndex, float mixDuration, void* userData) {
+	spTrackEntry* entry = spAnimationState_setAnimationWithData(self, trackIndex, SP_EMPTY_ANIMATION, 0, userData);
 	entry->mixDuration = mixDuration;
 	entry->trackEnd = mixDuration;
 	return entry;

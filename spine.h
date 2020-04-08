@@ -44,22 +44,15 @@ class Spine : public Node2D {
 
 public:
 	enum AnimationProcessMode {
-		ANIMATION_PROCESS_FIXED,
+		ANIMATION_PROCESS_FIXED = 0,
 		ANIMATION_PROCESS_IDLE,
 	};
-	enum AttachmentBoneFlag {
-		ATTACHMENT_BONE_FLAG_OFFSET = 1,
-		ATTACHMENT_BONE_FLAG_SCALE = 2,
-		ATTACHMENT_BONE_FLAG_ROTATION = 4,
-		ATTACHMENT_BONE_FLAG_ALL = ATTACHMENT_BONE_FLAG_OFFSET | ATTACHMENT_BONE_FLAG_SCALE | ATTACHMENT_BONE_FLAG_ROTATION
+	enum AttachmentNodeFlag {
+		ATTACHMENT_NODE_FLAG_OFFSET = 1,
+		ATTACHMENT_NODE_FLAG_SCALE = 2,
+		ATTACHMENT_NODE_FLAG_ROTATION = 4,
+		ATTACHMENT_NODE_FLAG_ALL = ATTACHMENT_NODE_FLAG_OFFSET | ATTACHMENT_NODE_FLAG_SCALE | ATTACHMENT_NODE_FLAG_ROTATION
 	};
-	/*enum DebugAttachmentMode {
-		DEBUG_ATTACHMENT_REGION,
-		DEBUG_ATTACHMENT_MESH,
-		DEBUG_ATTACHMENT_SKINNED_MESH,
-		DEBUG_ATTACHMENT_BOUNDING_BOX,
-	};*/
-
 	
 	
 
@@ -67,14 +60,12 @@ private:
 	Ref<SpineSkeletonData> res;
 
 	spSkeleton *skeleton;
-	//spBone *root_bone;
 	spAnimationState *state;
 	mutable Vector<float> world_verts;
 	
 	AnimationProcessMode animation_process_mode;
 	bool playing;
 	bool auto_play;
-	//bool forward;
 	Array internal_animations;
 	SpineBatcher batcher;
 	bool show_bone;
@@ -82,38 +73,36 @@ private:
 	Vector2 spine_offset;
 	Vector2 spine_scale;
 	float default_mix;
-	bool collision_whitelist;
-	uint32_t collision_layer;
-	uint32_t collision_mask;
-	PoolStringArray collision_list
-	//String autoplay;
-	//bool processing;
-	//bool active;
-	
-	//int skip_frames;
-	//int frames_to_skip;
-	//float process_delta;
-	//bool debug_bones;
-	//bool debug_attachment_region;
-	//bool debug_attachment_mesh;
-	//bool debug_attachment_skinned_mesh;
-	//bool debug_attachment_bounding_box;
-	//String current_animation;
-	//float duration; // Handled as a property, but never set in the setter
-	//float actual_duration; // Store the actual length of the animation
-	//bool loop;
-	//String skin;
+	/*bool collision_whitelist;*/
+	/*PoolStringArray collision_list;*/
+	bool use_bounding_box;
 
-	//Color modulate;
-	//bool flip_x, flip_y;
-	
-
-	//// fx slots (always show on top)
-	//Node2D *fx_node;
-	//SpineBatcher fx_batcher;
-	//CharString fx_slot_prefix;
-
-	//float current_pos;
+	class Polygon
+	{
+	private:
+		WeakRef ref;
+	public:
+		Polygon& operator= (const Polygon& rhs) {
+			if (this != &rhs)
+				ref.set_obj(rhs.ref.get_ref());
+			return *this;
+		};
+		_FORCE_INLINE_ CollisionPolygon2D* get_polygon() { return cast_to<CollisionPolygon2D>(ref.get_ref()); };
+		_FORCE_INLINE_ void set_polygon(CollisionPolygon2D* p_polygon) { ref.set_obj(p_polygon); };
+		_FORCE_INLINE_ Polygon() :ref() {};
+		_FORCE_INLINE_ ~Polygon() {
+			Object* obj = ref.get_ref();
+			if (obj) obj->call_deferred("free");
+		};
+	};
+	typedef List<Polygon> BoundingBox;
+	BoundingBox _bounding_boxs;
+	/*typedef struct {
+		spSlot* slot;
+		BoundingBox polygons;
+	} SlotCollisionPolygons;
+	typedef List<SlotCollisionPolygons> SlotPolygons;
+	SlotPolygons _polygons;*/
 
 	typedef struct AttachmentNode {
 		List<AttachmentNode>::Element *E;
@@ -133,12 +122,28 @@ private:
 
 	void _animation_process(float p_delta);
 	void _animation_draw();
-	//void _set_process(bool p_process, bool p_force = false);
-	//void _on_fx_draw();
 	void _update_verties_count();
+	void _update_attachment_node();
+	void _update_bounding_box();
+	typedef struct {
+		bool isAdd;
+		String anim;
+		int track;
+		union {
+			bool loop;
+			float mix;
+		};
+		float delay;
+	} AddAnimationData;
+	SpineAnimation* _add_animation(const AddAnimationData& p_data);
+	//void _update_polygons();
+
+	bool is_end() const;
 
 	void _spine_dispose();
 	void _spine_create();
+
+	void reset();
 protected:
 	//static Array *invalid_names;
 
@@ -156,10 +161,11 @@ public:
 	void set_resource(Ref<SpineSkeletonData> p_data);
 	Ref<SpineSkeletonData> get_resource();
 	void resource_changed(Ref<Resource> p_res);
+
 	PoolStringArray get_skins();
 	bool has_skin(const String& p_skin);
 	String get_skin() const;
-	void set_skin(const String& p_skin);
+	bool set_skin(const String& p_skin);
 
 	Array get_internal_animations() const;
 	void set_internal_animations(Array p_animations);
@@ -169,8 +175,6 @@ public:
 	bool is_playing() const;
 	void set_auto_play(bool p_auto);
 	bool is_auto_play() const;
-	//oid set_forward(bool p_forward);
-	//bool is_forward() const;
 	void set_show_bone(bool p_show);
 	bool is_show_bone() const;
 	void set_speed_scale(bool p_scale);
@@ -181,123 +185,60 @@ public:
 	Vector2 get_spine_scale() const;
 	void set_default_mix(float p_mix);
 	float get_default_mix() const;
-	void set_collision_whitelist(bool p_value);
-	bool is_collision_whitelist() const;
-	void set_collision_layer(uint32_t p_layer);
-	uint32_t get_collision_layer() const;
-	void set_collision_mask(uint32_t p_mask);
-	uint32_t get_collision_mask() const;
-	
+	bool set_mix(const String& p_from, const String& p_to, real_t p_value);
+	real_t get_mix(const String& p_from, const String& p_to) const;
+	//void set_collision_whitelist(bool p_value);
+	//bool is_collision_whitelist() const;
+	//void set_collision_list(const PoolStringArray& p_list);
+	//PoolStringArray get_collision_list() const;
+	void set_use_bounding_box(bool p_value);
+	bool is_use_bounding_box() const;
 
 	void add_internal_animations();
-	void add_animation_by_attribute(Ref<SpineAnimationAttri> p_anim);
-	SpineAnimation* add_animation(const String& p_name, int p_track, bool p_loop, float p_delay);
-	SpineAnimation* add_empty_animation(int p_track, float p_mix, float p_delay);
+	SpineAnimation* add_animation_by_attribute(Ref<SpineAnimationAttri> p_attribute);
+	SpineAnimation* add_animation(const String& p_name, bool p_loop, float p_delay, int p_track = 0);
+	SpineAnimation* add_empty_animation(float p_mix, float p_delay, int p_track = 0);
+	SpineAnimation* set_animation(const String& p_name, bool p_loop, int p_track = 0);
+	SpineAnimation* set_empty_animation(float p_mix, int p_track = 0);
+	bool has_animation(const String& p_name) const;
 	PoolStringArray get_animations() const;
-
-	bool is_end() const;
-	void clear_tracks();
-	void clear_track(int p_track);
-	//Array get_animation_names() const;
-
-	//bool has_animation(const String &p_name);
-	//void set_default_mix(real_t p_duration);
-	//void mix(const String &p_from, const String &p_to, real_t p_duration);
-
-	//bool play(const String &p_name, bool p_loop = false, int p_track = 0, int p_delay = 0);
-	//bool add(const String &p_name, bool p_loop = false, int p_track = 0, int p_delay = 0);
-	//void clear(int p_track = -1);
-	//void stop();
-	//bool is_playing(int p_track = 0) const;
-	//float get_animation_length(String p_animation) const;
 	
-	//void set_skip_frames(int p_skip_frames);
-	//int get_skip_frames() const;
-	//String get_current_animation(int p_track);
-	//void stop_all();
-	void reset();
-	//void seek(float p_pos);
-	//float tell() const;
+	real_t get_animation_duration(const String& p_name) const;
+	SpineAnimation* get_current_animation(int p_track = 0);
 
-	//void set_active(bool p_active);
-	//bool is_active() const;
+	PoolStringArray get_bones() const;
+	bool has_bone(const String& p_name) const;
+	Transform2D get_bone_local_transform(const String& p_name) const;
+	Transform2D get_bone_world_transform(const String& p_name) const;
 
-	//void set_speed(float p_speed);
-	//float get_speed() const;
-
-	//void set_autoplay(const String &p_name);
-	//String get_autoplay() const;
-
-	//void set_modulate(const Color &p_color);
-	//Color get_modulate() const;
-
-	//void set_flip_x(bool p_flip);
-	//void set_flip_y(bool p_flip);
-	//bool is_flip_x() const;
-	//bool is_flip_y() const;
-
-	//void set_duration(float p_duration);
-	//float get_duration() const;
-
+	PoolStringArray get_slots() const;
+	PoolStringArray get_slot_attachments(const String& p_name) const;
+	bool has_slot_attachment(const String& p_slot, const String& p_attachment) const;
+	bool set_slot_attachment(const String& p_slot, const String& p_attachment);
+	String get_slot_attachment(const String& p_name) const;
+	bool set_slot_color(const String& p_name, const Color& p_color);
+	Color get_slot_color(const String& p_name) const;
 	
-
-	///* Sets the skin used to look up attachments not found in the SkeletonData defaultSkin. Attachments from the new skin are
-	//* attached if the corresponding attachment from the old skin was attached. If there was no old skin, each slot's setup mode
-	//* attachment is attached from the new skin. Returns false if the skin was not found.
-	//* @param skin May be 0.*/
-	//bool set_skin(const String &p_name);
-
-	////spAttachment* get_attachment(const char* slotName, const char* attachmentName) const;
-	//Dictionary get_skeleton() const;
-	///* Returns null if the slot or attachment was not found. */
-	//Dictionary get_attachment(const String &p_slot_name, const String &p_attachment_name) const;
-	///* Returns null if the bone was not found. */
-	//Dictionary get_bone(const String &p_bone_name) const;
-	///* Returns null if the slot was not found. */
-	//Dictionary get_slot(const String &p_slot_name) const;
-	///* Returns false if the slot or attachment was not found. */
-	//bool set_attachment(const String &p_slot_name, const Variant &p_attachment);
-	//// bind node to bone, auto update pos/rotate/scale
-	String get_attachment_node_bone(const Variant &p_node) const;
-	Array get_attachment_nodes(const String &p_node) const;
-	bool add_attachment_node(const String &p_bone_name, const Variant &p_node, Vector2 p_ofs = Vector2(0, 0), Vector2 p_scale = Vector2(1, 1), real_t p_rot = 0, int p_flag = ATTACHMENT_BONE_FLAG_ALL);
-	bool remove_attachment_node(const Variant &p_node);
-	Vector2 get_attachment_node_offset(const Variant& p_node) const;
-	float get_attachment_node_rotation(const Variant& p_node) const;
-	Vector2 get_attachment_node_scale(const Variant& p_node) const;
-	void set_attachment_node_offset(Variant& p_node, Vector2 p_offset);
-	void set_attachment_node_rotation(Variant& p_node, real_t p_rotation);
-	void set_attachment_node_scale(Variant& p_node, Vector2 p_scale);
-	//// get spine bounding box
-	//Ref<Shape2D> get_bounding_box(const String &p_slot_name, const String &p_attachment_name);
-	//// bind collision object 2d to spine bounding box
-	//bool add_bounding_box(const String &p_bone_name, const String &p_slot_name, const String &p_attachment_name, const Variant &p_node, const Vector2 &p_ofs = Vector2(0, 0), const Vector2 &p_scale = Vector2(1, 1), const real_t p_rot = 0);
-	//bool remove_bounding_box(const String &p_bone_name, const Variant &p_node);
-
-	//void set_fx_slot_prefix(const String &p_prefix);
-	//String get_fx_slot_prefix() const;
-
-	//void set_debug_bones(bool p_enable);
-	//bool is_debug_bones() const;
-	//void set_debug_attachment(DebugAttachmentMode p_mode, bool p_enable);
-	//bool is_debug_attachment(DebugAttachmentMode p_mode) const;
-
-	//void set_debug_attachment_region(bool p_enable);
-	//bool is_debug_attachment_region() const;
-	//void set_debug_attachment_mesh(bool p_enable);
-	//bool is_debug_attachment_mesh() const;
-	//void set_debug_attachment_skinned_mesh(bool p_enable);
-	//bool is_debug_attachment_skinned_mesh() const;
-	//void set_debug_attachment_bounding_box(bool p_enable);
-	//bool is_debug_attachment_bounding_box() const;
+	void clear(int p_track = -1);
+	PoolIntArray get_tracks() const;
+	
+	// bind node to bone, auto update pos/rotate/scale
+	String get_attachment_node_bone(const Object* p_node) const;
+	Array get_attachment_nodes(const String &p_bone_name) const;
+	bool add_attachment_node(const String &p_bone_name, Object* p_node, const Transform2D& p_transform = Transform2D(), int p_flag = ATTACHMENT_NODE_FLAG_ALL);
+	bool remove_attachment_node(Object* p_node);
+	int get_attachment_node_flag(const Object* p_node) const;
+	Vector2 get_attachment_node_offset(const Object* p_node) const;
+	real_t get_attachment_node_rotation(const Object* p_node) const;
+	Vector2 get_attachment_node_scale(const Object* p_node) const;
+	void set_attachment_node_flag(Object* p_node, int p_flag);
+	void set_attachment_node_offset(Object* p_node, Vector2 p_offset);
+	void set_attachment_node_rotation(Object* p_node, real_t p_rotation);
+	void set_attachment_node_scale(Object* p_node, Vector2 p_scale);
 
 	void seek(float p_time);
-	float get_play_time() const;
-	//void seek_delta(float p_time, float p_delta);
-	//float get_current_animation_pos() const;
-	//float get_current_animation_length() const;
+	float tell() const;
 
-	//void advance(float p_time);
 #ifdef TOOLS_ENABLED
 	virtual Rect2 _edit_get_rect() const;
 	virtual bool _edit_use_rect() const;
@@ -305,8 +246,8 @@ public:
 	Spine();
 	virtual ~Spine();
 };
-//
+
 VARIANT_ENUM_CAST(Spine::AnimationProcessMode);
-//VARIANT_ENUM_CAST(Spine::DebugAttachmentMode);
+VARIANT_ENUM_CAST(Spine::AttachmentNodeFlag);
 
 #endif // SPINE_H

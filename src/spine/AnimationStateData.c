@@ -96,13 +96,14 @@ void spAnimationStateData_dispose (spAnimationStateData* self) {
 	FREE(self);
 }
 
-void spAnimationStateData_setMixByName (spAnimationStateData* self, const char* fromName, const char* toName, float duration) {
+int spAnimationStateData_setMixByName (spAnimationStateData* self, const char* fromName, const char* toName, float duration) {
 	spAnimation* to;
 	spAnimation* from = spSkeletonData_findAnimation(self->skeletonData, fromName);
-	if (!from) return;
+	if (!from) return 0;
 	to = spSkeletonData_findAnimation(self->skeletonData, toName);
-	if (!to) return;
+	if (!to) return 0;
 	spAnimationStateData_setMix(self, from, to, duration);
+	return 1;
 }
 
 void spAnimationStateData_setMix (spAnimationStateData* self, spAnimation* from, spAnimation* to, float duration) {
