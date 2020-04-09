@@ -54,9 +54,11 @@ spSkeletonData* SpineJsonSkeleton::load(spAtlas* atlas, float scale)
 	json->scale = scale;
 
 	spSkeletonData* data = spSkeletonJson_readSkeletonDataFile(json, get_path().utf8().get_data());
+	if (!data)
+		print_line(json->error);
 	spSkeletonJson_dispose(json);
 
-	return nullptr;
+	return data;
 }
 
 spSkeletonData* SpineBinarySkeleton::load(spAtlas* atlas, float scale)
@@ -65,6 +67,8 @@ spSkeletonData* SpineBinarySkeleton::load(spAtlas* atlas, float scale)
 	ERR_FAIL_COND_V(bin == NULL, nullptr);
 	bin->scale = scale;
 	spSkeletonData* data = spSkeletonBinary_readSkeletonDataFile(bin, get_path().utf8().get_data());
+	if (!data)
+		print_line(bin->error);
 	spSkeletonBinary_dispose(bin);
 	return data;
 }
@@ -98,6 +102,9 @@ float SpineSkeletonData::get_scale()
 
 void SpineSkeletonData::set_skeleton(Ref<SpineSkeleton> p_skel)
 {
+	if (p_skel == skel)
+		return;
+
 	skel = p_skel;
 	if (skel.is_valid() && atlas.is_valid())
 	{
@@ -116,18 +123,23 @@ void SpineSkeletonData::set_skeleton(Ref<SpineSkeleton> p_skel)
 
 void SpineSkeletonData::set_atlas(Ref<SpineAtlas> p_atlas)
 {
+	if (p_atlas == atlas)
+		return;
+	
 	atlas = p_atlas;
 	if (skel.is_valid() && atlas.is_valid())
 	{
 		if (data != NULL)
 			spSkeletonData_dispose(data);
 		data = skel->load(atlas->data, scale);
+		
 		notify_change_to_owners();
 	}
 	else if (data != NULL)
 	{
 		spSkeletonData_dispose(data);
 		data = NULL;
+
 		notify_change_to_owners();
 	}
 }

@@ -92,7 +92,16 @@ private:
 		_FORCE_INLINE_ Polygon() :ref() {};
 		_FORCE_INLINE_ ~Polygon() {
 			Object* obj = ref.get_ref();
-			if (obj) obj->call_deferred("free");
+			
+			if (obj) {
+				obj->call_deferred("free");
+				if (cast_to<Node>(obj))
+					print_line("polygon's object("+  cast_to<Node>(obj)->get_name() + ") free!");
+				else
+					print_line("polygon's obj is not node!");
+			}
+			else
+				print_line("polygon's obj is null!");
 		};
 	};
 	typedef List<Polygon> BoundingBox;

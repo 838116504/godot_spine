@@ -110,7 +110,6 @@ void Spine::_on_animation_state_event(spTrackEntry *p_track, spEventType p_type,
 				if (auto_play && internal_animations.size() > 0)
 				{
 					add_internal_animations();
-					//print_line("replay!");
 				}
 			}
 			break;
@@ -150,7 +149,7 @@ void Spine::_spine_dispose()
 
 void Spine::_spine_create()
 {
-	if (res->data == NULL)
+	if (res.is_null() || !res->is_valid())
 		return;
 
 	skeleton = spSkeleton_create(res->data);
@@ -479,6 +478,7 @@ void Spine::_get_property_list(List<PropertyInfo> *p_list) const
 {
 	if (skeleton != NULL)
 	{
+		ERR_FAIL_COND(!skeleton->data->defaultSkin);
 		String hint = skeleton->data->defaultSkin->name;
 		if (skeleton->data->skinsCount > 0)
 		{
@@ -531,7 +531,7 @@ void Spine::set_resource(Ref<SpineSkeletonData> p_data)
 {
 	if (res == p_data)
 		return;
-
+	
 	_spine_dispose(); // cleanup
 	if (res.is_valid())
 		res->unregister_owner(this);
@@ -609,12 +609,16 @@ String Spine::get_skin() const
 	if (skeleton->skin)
 		return skeleton->skin->name;
 	else
+	{
+		ERR_FAIL_COND_V(!skeleton->data->defaultSkin, "");
 		return skeleton->data->defaultSkin->name;
+	}
 }
 
 bool Spine::set_skin(const String& p_skin)
 {
 	ERR_FAIL_COND_V(!skeleton, false);
+	ERR_FAIL_COND_V(!skeleton->data->defaultSkin, false);
 	
 	if (p_skin == skeleton->data->defaultSkin->name || p_skin == "")
 	{
@@ -849,7 +853,10 @@ PoolStringArray Spine::get_slot_attachments(const String& p_name) const
 	ERR_FAIL_COND_V(slotId == -1, PoolStringArray());
 	spSkin* skin;
 	if (!skeleton->skin)
+	{
+		ERR_FAIL_COND_V(!skeleton->data->defaultSkin, PoolStringArray());
 		skin = skeleton->data->defaultSkin;
+	}	
 	else
 		skin = skeleton->skin;
 	spSkinEntry* entry = spSkin_getAttachments(skin);
@@ -1130,7 +1137,6 @@ void Spine::set_internal_animations(Array p_animations)
 			if (skeleton != NULL)
 				ref->set_animation_name(skeleton->data->animations[rand() % skeleton->data->animationsCount]->name);
 			internal_animations[i] = ref;
-			//print_line("internal animation[i] is null!");
 		}
 		Ref<SpineAnimationAttri>(internal_animations[i])->register_owner(this);
 	}
@@ -1173,7 +1179,6 @@ void Spine::set_playing(bool p_playing)
 		if (auto_play && internal_animations.size() > 0)
 		{
 			add_internal_animations();
-			print_line("added internal animations");
 		}
 		else
 			return;
@@ -1346,7 +1351,7 @@ void Spine::_bind_methods()
 {
 	ClassDB::bind_method(D_METHOD("set_resource", "value"), &Spine::set_resource);
 	ClassDB::bind_method(D_METHOD("get_resource"), &Spine::get_resource);
-	//ClassDB::bind_method(D_METHOD("resource_changed", "spine_skeleton_data"), &Spine::resource_changed);
+	ClassDB::bind_method(D_METHOD("resource_changed", "spine_skeleton_data"), &Spine::resource_changed);
 
 	ClassDB::bind_method(D_METHOD("has_skin", "name"), &Spine::has_skin);
 	ClassDB::bind_method(D_METHOD("get_skins"), &Spine::get_skins);
