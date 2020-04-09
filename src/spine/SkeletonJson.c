@@ -876,6 +876,45 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 	//_spPrintLine("finished Json_getItem path");
 	/* Skins. */
 	skins = Json_getItem(root, "skins");
+	if (skins->type == Json_Object && skins->child)
+	{
+		Json* new_skins = (Json*)CALLOC(Json, 1);
+		new_skins->type = Json_Array;
+		new_skins->size = 0;
+		Json* skinsChild = NULL;
+		Json* c = skins->child;
+		while (c && c->type == Json_Object && c->name)
+		{
+			Json* new_skin = (Json*)CALLOC(Json, 1);
+			new_skin->type = Json_Object;
+			new_skin->size = 2;
+			Json* new_skin_name = (Json*)CALLOC(Json, 1);
+			new_skin_name->type = Json_String;
+			char* ptr = MALLOC(char, strlen("name")+1);
+			strcpy(ptr, "name");
+			new_skin_name->name = ptr;		
+			new_skin_name->valueString = c->name;
+			new_skin->child = new_skin_name;
+			new_skin_name->next = c;
+			ptr = MALLOC(char, strlen("attachments")+1);
+			strcpy(ptr, "attachments");
+			c->name = ptr;
+			c = c->next;
+			new_skin_name->next->next = NULL;
+			if (skinsChild)
+			{
+				skinsChild->next = new_skin;
+				++new_skins->size;
+			}
+			else
+			{
+				skinsChild = new_skin;
+				new_skins->child = skinsChild;
+				new_skins->size = 1;
+			}
+		}
+		skins = new_skins;
+	}
 	if (skins) {
 		Json *skinMap;
 		skeletonData->skins = MALLOC(spSkin*, skins->size);
