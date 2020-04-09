@@ -268,7 +268,7 @@ void SpineAnimationAttri::_bind_methods()
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "delay"), "set_delay", "get_delay");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "loop"), "set_loop", "get_loop");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "mix"), "set_mix", "get_mix");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_end"), "set_use_end", "is_use_end");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_mix"), "set_use_mix", "is_use_mix");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "alpha"), "set_alpha", "get_alpha");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "start"), "set_start", "get_start");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_end"), "set_use_end", "is_use_end");
