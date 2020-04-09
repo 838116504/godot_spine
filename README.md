@@ -13,13 +13,15 @@ This module is forked from [sanikoyes's godot branch](https://github.com/sanikoy
 
 The license of this module is under the [Spine Runtimes Software License](https://github.com/EsotericSoftware/spine-runtimes/blob/3.6/LICENSE).
 
-## Spine Runtime changed by myself
+## Spine Runtime changed
 
 Fix the problem when load json that have skin no attachment(SkeletonJson.c >> spSkeletonJson_readSkeletonData function changed).
 
 Modify spAnimationStateData_setMixByName function return type to int for check whether set success(AnimationStateData.c and AnimationStateData.h changed).
 
 Added 6 add/set animation function for set spTrackEntry's userData before animation start.(AnimationState.h and AnimationState.c >> spAnimationState_setAnimationByNameWithData, spAnimationState_setAnimationByName, spAnimationState_setAnimationWithData, spAnimationState_setAnimation, spAnimationState_addAnimationByName, spAnimationState_addAnimationByNameWithData, spAnimationState_addAnimation, spAnimationState_addAnimationWithData functions changed.).
+
+Other chanage see my commit history.
 
 ## Chinese doc
 [Spine](https://shimo.im/docs/y8Pwd36PwxkJTjw3/)
