@@ -15,12 +15,19 @@ Added 6 add/set animation function for set spTrackEntry's userData before animat
 
 ## Chinese doc(unfinished)
 [Spine](https://shimo.im/docs/y8Pwd36PwxkJTjw3/)
+
 [SpineAnimationAttri](https://shimo.im/docs/qvyHdkRQ9tyctWhc/)
+
 [SpineAnimation](https://shimo.im/docs/pVjY9hGQr36pCG6c/)
+
 [SpineSkeletonData](https://shimo.im/docs/JWD6y866DT9wyCxC/)
+
 [SpineAtlas](https://shimo.im/docs/q8qhR3yKDccdXCWp/)
+
 [SpineBinarySkeleton](https://shimo.im/docs/jWVvccdtv6PKVDrk/)
+
 [SpineJsonSkeleton](https://shimo.im/docs/xXYQrr9GW6TkHHCv/)
+
 [SpineSkeleton](https://shimo.im/docs/3YtjHxKTW6KdXwJG/)
 
 ## About the license
