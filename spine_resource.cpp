@@ -49,9 +49,8 @@ bool SpineAtlas::load()
 spSkeletonData* SpineJsonSkeleton::load(spAtlas* atlas, float scale)
 {
 	String str = "json path: " + get_path();
-	print_line(str);
 	spSkeletonJson *json = spSkeletonJson_create(atlas);
-	ERR_FAIL_COND_V(json == NULL, false);
+	ERR_FAIL_COND_V(json == NULL, Res());
 	json->scale = scale;
 
 	spSkeletonData* data = spSkeletonJson_readSkeletonDataFile(json, get_path().utf8().get_data());
@@ -63,7 +62,7 @@ spSkeletonData* SpineJsonSkeleton::load(spAtlas* atlas, float scale)
 spSkeletonData* SpineBinarySkeleton::load(spAtlas* atlas, float scale)
 {
 	spSkeletonBinary* bin  = spSkeletonBinary_create(atlas);
-	ERR_FAIL_COND_V(bin == NULL, false);
+	ERR_FAIL_COND_V(bin == NULL, Res());
 	bin->scale = scale;
 	spSkeletonData* data = spSkeletonBinary_readSkeletonDataFile(bin, get_path().utf8().get_data());
 	spSkeletonBinary_dispose(bin);
