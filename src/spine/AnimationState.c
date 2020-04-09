@@ -700,12 +700,16 @@ void _spAnimationState_setCurrent (spAnimationState* self, int index, spTrackEnt
 spTrackEntry* spAnimationState_setAnimationByNameWithData(spAnimationState* self, int trackIndex, const char* animationName, int/*bool*/loop, void* userData)
 {
 	spAnimation* animation = spSkeletonData_findAnimation(self->data->skeletonData, animationName);
+	if (!animation)
+		return NULL;
 	return spAnimationState_setAnimationWithData(self, trackIndex, animation, loop, userData);
 }
 
 /** Set the current animation. Any queued animations are cleared. */
 spTrackEntry* spAnimationState_setAnimationByName (spAnimationState* self, int trackIndex, const char* animationName, int/*bool*/loop) {
 	spAnimation* animation = spSkeletonData_findAnimation(self->data->skeletonData, animationName);
+	if (!animation)
+		return NULL;
 	return spAnimationState_setAnimation(self, trackIndex, animation, loop);
 }
 
@@ -749,6 +753,8 @@ spTrackEntry* spAnimationState_addAnimationByNameWithData (spAnimationState* sel
 	int/*bool*/loop, float delay, void* userData
 ) {
 	spAnimation* animation = spSkeletonData_findAnimation(self->data->skeletonData, animationName);
+	if (!animation)
+		return NULL;
 	return spAnimationState_addAnimationWithData(self, trackIndex, animation, loop, delay, userData);
 }
 

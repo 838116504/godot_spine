@@ -520,8 +520,10 @@ void Spine::_notification(int p_what) {
 		{
 			_animation_draw();
 		} break;
-		case NOTIFICATION_PARENTED:
 		case NOTIFICATION_UNPARENTED:
+			_bounding_boxs.clear();
+			break;
+		case NOTIFICATION_PARENTED:
 			_update_bounding_box();
 			break;
 	}
@@ -1579,6 +1581,8 @@ void Spine::_update_attachment_node()
 
 void Spine::_update_bounding_box()
 {
+	if (!skeleton)
+		return;
 	if (use_bounding_box)
 	{
 		spSlot* slot;

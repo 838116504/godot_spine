@@ -116,6 +116,18 @@ void SpineAnimation::set_speed_scale(float p_scale)
 	trackEntry->timeScale = p_scale;
 }
 
+void SpineAnimation::set_loop()
+{
+	ERR_FAIL_COND(trackEntry == NULL);
+	trackEntry->loop = true;
+}
+
+bool SpineAnimation::is_loop() const
+{
+	ERR_FAIL_COND_V(trackEntry == NULL, false);
+	return trackEntry->loop;
+}
+
 String SpineAnimation::get_name() const
 {
 	ERR_FAIL_COND_V(trackEntry == NULL, "");

@@ -55,6 +55,8 @@ public:
 	void set_mix_duration(float p_time);
 	float get_speed_scale() const;
 	void set_speed_scale(float p_scale);
+	void set_loop();
+	bool is_loop() const;
 	String get_name() const;
 	float get_duration() const;
 	float get_final_time_scale() const;
