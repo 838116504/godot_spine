@@ -184,6 +184,8 @@ void SpineAnimation::_bind_methods()
 	ClassDB::bind_method(D_METHOD("get_mix_duration"), &SpineAnimation::get_duration);
 	ClassDB::bind_method(D_METHOD("set_speed_scale", "time"), &SpineAnimation::set_speed_scale);
 	ClassDB::bind_method(D_METHOD("get_speed_scale"), &SpineAnimation::get_speed_scale);
+	ClassDB::bind_method(D_METHOD("set_loop", "value"), &SpineAnimation::set_loop);
+	ClassDB::bind_method(D_METHOD("is_loop"), &SpineAnimation::is_loop);
 	ClassDB::bind_method(D_METHOD("get_name"), &SpineAnimation::get_name);
 	ClassDB::bind_method(D_METHOD("get_duration"), &SpineAnimation::get_duration);
 	ClassDB::bind_method(D_METHOD("get_final_time_scale"), &SpineAnimation::get_final_time_scale);
