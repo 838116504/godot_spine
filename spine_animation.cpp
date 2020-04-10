@@ -116,10 +116,10 @@ void SpineAnimation::set_speed_scale(float p_scale)
 	trackEntry->timeScale = p_scale;
 }
 
-void SpineAnimation::set_loop()
+void SpineAnimation::set_loop(bool value)
 {
 	ERR_FAIL_COND(trackEntry == NULL);
-	trackEntry->loop = true;
+	trackEntry->loop = value;
 }
 
 bool SpineAnimation::is_loop() const
