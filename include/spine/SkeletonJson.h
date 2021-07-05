@@ -37,7 +37,6 @@
 #include <spine/Atlas.h>
 #include <spine/Animation.h>
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif

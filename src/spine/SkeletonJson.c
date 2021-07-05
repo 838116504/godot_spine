@@ -34,7 +34,6 @@
 #include <spine/AtlasAttachmentLoader.h>
 #include <spine/Array.h>
 
-
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 #define strdup _strdup
 #endif
@@ -580,10 +579,8 @@ spSkeletonData* spSkeletonJson_readSkeletonDataFile (spSkeletonJson* self, const
 		_spSkeletonJson_setError(self, 0, "Unable to read skeleton file: ", path);
 		return 0;
 	}
-	//_spPrintLine("ready to read json!");
 	skeletonData = spSkeletonJson_readSkeletonData(self, json);
 	FREE(json);
-	
 	return skeletonData;
 }
 
@@ -596,20 +593,20 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 	FREE(self->error);
 	CONST_CAST(char*, self->error) = 0;
 	internal->linkedMeshCount = 0;
-	
+
 	root = Json_create(json);
-	
+
 	if (!root) {
 		_spSkeletonJson_setError(self, 0, "Invalid skeleton JSON: ", Json_getError());
 		return 0;
 	}
 
 	skeletonData = spSkeletonData_create();
-	
+
 	skeleton = Json_getItem(root, "skeleton");
 	if (skeleton) {
-		MALLOC_STR(skeletonData->hash, Json_getString(skeleton, "hash", " "));
-		MALLOC_STR(skeletonData->version, Json_getString(skeleton, "spine", "0"));
+		MALLOC_STR(skeletonData->hash, Json_getString(skeleton, "hash", 0));
+		MALLOC_STR(skeletonData->version, Json_getString(skeleton, "spine", 0));
         if (strcmp(skeletonData->version, "3.8.75") == 0) {
             spSkeletonData_dispose(skeletonData);
             _spSkeletonJson_setError(self, root, "Unsupported skeleton data, please export with a newer version of Spine.", "");
@@ -620,7 +617,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 		skeletonData->width = Json_getFloat(skeleton, "width", 0);
 		skeletonData->height = Json_getFloat(skeleton, "height", 0);
 	}
-	//_spPrintLine("fisinhed Json_getItem skeleton");
+
 	/* Bones. */
 	bones = Json_getItem(root, "bones");
 	skeletonData->bones = MALLOC(spBoneData*, bones->size);
@@ -660,7 +657,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 		skeletonData->bones[i] = data;
 		skeletonData->bonesCount++;
 	}
-	//_spPrintLine("finished Json_getItem bones");
+
 	/* Slots. */
 	slots = Json_getItem(root, "slots");
 	if (slots) {
@@ -718,7 +715,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 			skeletonData->slots[i] = data;
 		}
 	}
-	//_spPrintLine("finished Json_getItem slots");
+
 	/* IK constraints. */
 	ik = Json_getItem(root, "ik");
 	if (ik) {
@@ -762,7 +759,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 			skeletonData->ikConstraints[i] = data;
 		}
 	}
-	//_spPrintLine("finished Json_getItem iks");
+
 	/* Transform constraints. */
 	transform = Json_getItem(root, "transform");
 	if (transform) {
@@ -813,7 +810,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 			skeletonData->transformConstraints[i] = data;
 		}
 	}
-	//_spPrintLine("finished Json_getItem transform");
+
 	/* Path constraints */
 	pathJson = Json_getItem(root, "path");
 	if (pathJson) {
@@ -873,48 +870,9 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 			skeletonData->pathConstraints[i] = data;
 		}
 	}
-	//_spPrintLine("finished Json_getItem path");
+
 	/* Skins. */
 	skins = Json_getItem(root, "skins");
-	if (skins->type == Json_Object && skins->child)
-	{
-		Json* new_skins = (Json*)CALLOC(Json, 1);
-		new_skins->type = Json_Array;
-		new_skins->size = 0;
-		Json* skinsChild = NULL;
-		Json* c = skins->child;
-		while (c && c->type == Json_Object && c->name)
-		{
-			Json* new_skin = (Json*)CALLOC(Json, 1);
-			new_skin->type = Json_Object;
-			new_skin->size = 2;
-			Json* new_skin_name = (Json*)CALLOC(Json, 1);
-			new_skin_name->type = Json_String;
-			char* ptr = MALLOC(char, strlen("name")+1);
-			strcpy(ptr, "name");
-			new_skin_name->name = ptr;		
-			new_skin_name->valueString = c->name;
-			new_skin->child = new_skin_name;
-			new_skin_name->next = c;
-			ptr = MALLOC(char, strlen("attachments")+1);
-			strcpy(ptr, "attachments");
-			c->name = ptr;
-			c = c->next;
-			new_skin_name->next->next = NULL;
-			if (skinsChild)
-			{
-				skinsChild->next = new_skin;
-				++new_skins->size;
-			}
-			else
-			{
-				skinsChild = new_skin;
-				new_skins->child = skinsChild;
-				new_skins->size = 1;
-			}
-		}
-		skins = new_skins;
-	}
 	if (skins) {
 		Json *skinMap;
 		skeletonData->skins = MALLOC(spSkin*, skins->size);
@@ -922,9 +880,8 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 			Json *attachmentsMap;
 			Json *curves;
 			Json *skinPart;
-			
 			spSkin *skin = spSkin_create(Json_getString(skinMap, "name", ""));
-			
+
 			skinPart = Json_getItem(skinMap, "bones");
 			if (skinPart) {
 				for(skinPart = skinPart->child; skinPart; skinPart = skinPart->next) {
@@ -937,7 +894,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 					spBoneDataArray_add(skin->bones, bone);
 				}
 			}
-			;
+
 			skinPart = Json_getItem(skinMap, "ik");
 			if (skinPart) {
 				for(skinPart = skinPart->child; skinPart; skinPart = skinPart->next) {
@@ -950,7 +907,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 					spIkConstraintDataArray_add(skin->ikConstraints, constraint);
 				}
 			}
-			
+
 			skinPart = Json_getItem(skinMap, "path");
 			if (skinPart) {
 				for(skinPart = skinPart->child; skinPart; skinPart = skinPart->next) {
@@ -963,7 +920,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 					spPathConstraintDataArray_add(skin->pathConstraints, constraint);
 				}
 			}
-			
+
 			skinPart = Json_getItem(skinMap, "transform");
 			if (skinPart) {
 				for(skinPart = skinPart->child; skinPart; skinPart = skinPart->next) {
@@ -979,190 +936,186 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 
 			skeletonData->skins[skeletonData->skinsCount++] = skin;
 			if (strcmp(skin->name, "default") == 0) skeletonData->defaultSkin = skin;
-			
-			Json* tempAttachments = Json_getItem(skinMap, "attachments");
-			if (tempAttachments)
-			{
-				for (attachmentsMap = tempAttachments->child; attachmentsMap; attachmentsMap = attachmentsMap->next) {
-					spSlotData* slot = spSkeletonData_findSlot(skeletonData, attachmentsMap->name);
-					Json *attachmentMap;
 
-					for (attachmentMap = attachmentsMap->child; attachmentMap; attachmentMap = attachmentMap->next) {
-						spAttachment* attachment;
-						const char* skinAttachmentName = attachmentMap->name;
-						const char* attachmentName = Json_getString(attachmentMap, "name", skinAttachmentName);
-						const char* path = Json_getString(attachmentMap, "path", attachmentName);
-						const char* color;
-						Json* entry;
+			for (attachmentsMap = Json_getItem(skinMap, "attachments")->child; attachmentsMap; attachmentsMap = attachmentsMap->next) {
+				spSlotData* slot = spSkeletonData_findSlot(skeletonData, attachmentsMap->name);
+				Json *attachmentMap;
 
-						const char* typeString = Json_getString(attachmentMap, "type", "region");
-						spAttachmentType type;
-						if (strcmp(typeString, "region") == 0) type = SP_ATTACHMENT_REGION;
-						else if (strcmp(typeString, "mesh") == 0) type = SP_ATTACHMENT_MESH;
-						else if (strcmp(typeString, "linkedmesh") == 0) type = SP_ATTACHMENT_LINKED_MESH;
-						else if (strcmp(typeString, "boundingbox") == 0) type = SP_ATTACHMENT_BOUNDING_BOX;
-						else if (strcmp(typeString, "path") == 0) type = SP_ATTACHMENT_PATH;
-						else if	(strcmp(typeString, "clipping") == 0) type = SP_ATTACHMENT_CLIPPING;
-						else if	(strcmp(typeString, "point") == 0) type = SP_ATTACHMENT_POINT;
-						else {
+				for (attachmentMap = attachmentsMap->child; attachmentMap; attachmentMap = attachmentMap->next) {
+					spAttachment* attachment;
+					const char* skinAttachmentName = attachmentMap->name;
+					const char* attachmentName = Json_getString(attachmentMap, "name", skinAttachmentName);
+					const char* path = Json_getString(attachmentMap, "path", attachmentName);
+					const char* color;
+					Json* entry;
+
+					const char* typeString = Json_getString(attachmentMap, "type", "region");
+					spAttachmentType type;
+					if (strcmp(typeString, "region") == 0) type = SP_ATTACHMENT_REGION;
+					else if (strcmp(typeString, "mesh") == 0) type = SP_ATTACHMENT_MESH;
+					else if (strcmp(typeString, "linkedmesh") == 0) type = SP_ATTACHMENT_LINKED_MESH;
+					else if (strcmp(typeString, "boundingbox") == 0) type = SP_ATTACHMENT_BOUNDING_BOX;
+					else if (strcmp(typeString, "path") == 0) type = SP_ATTACHMENT_PATH;
+					else if	(strcmp(typeString, "clipping") == 0) type = SP_ATTACHMENT_CLIPPING;
+					else if	(strcmp(typeString, "point") == 0) type = SP_ATTACHMENT_POINT;
+					else {
+						spSkeletonData_dispose(skeletonData);
+						_spSkeletonJson_setError(self, root, "Unknown attachment type: ", typeString);
+						return 0;
+					}
+
+					attachment = spAttachmentLoader_createAttachment(self->attachmentLoader, skin, type, attachmentName, path);
+					if (!attachment) {
+						if (self->attachmentLoader->error1) {
 							spSkeletonData_dispose(skeletonData);
-							_spSkeletonJson_setError(self, root, "Unknown attachment type: ", typeString);
+							_spSkeletonJson_setError(self, root, self->attachmentLoader->error1, self->attachmentLoader->error2);
 							return 0;
 						}
-
-						attachment = spAttachmentLoader_createAttachment(self->attachmentLoader, skin, type, attachmentName, path);
-						if (!attachment) {
-							if (self->attachmentLoader->error1) {
-								spSkeletonData_dispose(skeletonData);
-								_spSkeletonJson_setError(self, root, self->attachmentLoader->error1, self->attachmentLoader->error2);
-								return 0;
-							}
-							continue;
-						}
-
-						switch (attachment->type) {
-						case SP_ATTACHMENT_REGION: {
-							spRegionAttachment* region = SUB_CAST(spRegionAttachment, attachment);
-							if (path) MALLOC_STR(region->path, path);
-							region->x = Json_getFloat(attachmentMap, "x", 0) * self->scale;
-							region->y = Json_getFloat(attachmentMap, "y", 0) * self->scale;
-							region->scaleX = Json_getFloat(attachmentMap, "scaleX", 1);
-							region->scaleY = Json_getFloat(attachmentMap, "scaleY", 1);
-							region->rotation = Json_getFloat(attachmentMap, "rotation", 0);
-							region->width = Json_getFloat(attachmentMap, "width", 32) * self->scale;
-							region->height = Json_getFloat(attachmentMap, "height", 32) * self->scale;
-
-							color = Json_getString(attachmentMap, "color", 0);
-							if (color) {
-								spColor_setFromFloats(&region->color,
-									toColor(color, 0),
-									toColor(color, 1),
-									toColor(color, 2),
-									toColor(color, 3));
-							}
-
-							spRegionAttachment_updateOffset(region);
-
-							spAttachmentLoader_configureAttachment(self->attachmentLoader, attachment);
-							break;
-						}
-						case SP_ATTACHMENT_MESH:
-						case SP_ATTACHMENT_LINKED_MESH: {
-							spMeshAttachment* mesh = SUB_CAST(spMeshAttachment, attachment);
-
-							MALLOC_STR(mesh->path, path);
-
-							color = Json_getString(attachmentMap, "color", 0);
-							if (color) {
-								spColor_setFromFloats(&mesh->color,
-									toColor(color, 0),
-									toColor(color, 1),
-									toColor(color, 2),
-									toColor(color, 3));
-							}
-
-							mesh->width = Json_getFloat(attachmentMap, "width", 32) * self->scale;
-							mesh->height = Json_getFloat(attachmentMap, "height", 32) * self->scale;
-
-							entry = Json_getItem(attachmentMap, "parent");
-							if (!entry) {
-								int verticesLength;
-								entry = Json_getItem(attachmentMap, "triangles");
-								mesh->trianglesCount = entry->size;
-								mesh->triangles = MALLOC(unsigned short, entry->size);
-								for (entry = entry->child, ii = 0; entry; entry = entry->next, ++ii)
-									mesh->triangles[ii] = (unsigned short)entry->valueInt;
-
-								entry = Json_getItem(attachmentMap, "uvs");
-								verticesLength = entry->size;
-								mesh->regionUVs = MALLOC(float, verticesLength);
-								for (entry = entry->child, ii = 0; entry; entry = entry->next, ++ii)
-									mesh->regionUVs[ii] = entry->valueFloat;
-
-								_readVertices(self, attachmentMap, SUPER(mesh), verticesLength);
-
-								spMeshAttachment_updateUVs(mesh);
-
-								mesh->hullLength = Json_getInt(attachmentMap, "hull", 0);
-
-								entry = Json_getItem(attachmentMap, "edges");
-								if (entry) {
-									mesh->edgesCount = entry->size;
-									mesh->edges = MALLOC(int, entry->size);
-									for (entry = entry->child, ii = 0; entry; entry = entry->next, ++ii)
-										mesh->edges[ii] = entry->valueInt;
-								}
-
-								spAttachmentLoader_configureAttachment(self->attachmentLoader, attachment);
-							} else {
-								int inheritDeform = Json_getInt(attachmentMap, "deform", 1);
-								_spSkeletonJson_addLinkedMesh(self, SUB_CAST(spMeshAttachment, attachment),
-									Json_getString(attachmentMap, "skin", 0), slot->index, entry->valueString, inheritDeform);
-							}
-							break;
-						}
-						case SP_ATTACHMENT_BOUNDING_BOX: {
-							spBoundingBoxAttachment* box = SUB_CAST(spBoundingBoxAttachment, attachment);
-							int vertexCount = Json_getInt(attachmentMap, "vertexCount", 0) << 1;
-							_readVertices(self, attachmentMap, SUPER(box), vertexCount);
-							box->super.verticesCount = vertexCount;
-							spAttachmentLoader_configureAttachment(self->attachmentLoader, attachment);
-							break;
-						}
-						case SP_ATTACHMENT_PATH: {
-							spPathAttachment* pathAttachment = SUB_CAST(spPathAttachment, attachment);
-							int vertexCount = 0;
-							pathAttachment->closed = Json_getInt(attachmentMap, "closed", 0);
-							pathAttachment->constantSpeed = Json_getInt(attachmentMap, "constantSpeed", 1);
-							vertexCount = Json_getInt(attachmentMap, "vertexCount", 0);
-							_readVertices(self, attachmentMap, SUPER(pathAttachment), vertexCount << 1);
-
-							pathAttachment->lengthsLength = vertexCount / 3;
-							pathAttachment->lengths = MALLOC(float, pathAttachment->lengthsLength);
-
-							curves = Json_getItem(attachmentMap, "lengths");
-							for (curves = curves->child, ii = 0; curves; curves = curves->next, ++ii)
-								pathAttachment->lengths[ii] = curves->valueFloat * self->scale;
-							break;
-						}
-						case SP_ATTACHMENT_POINT: {
-							spPointAttachment* point = SUB_CAST(spPointAttachment, attachment);
-							point->x = Json_getFloat(attachmentMap, "x", 0) * self->scale;
-							point->y = Json_getFloat(attachmentMap, "y", 0) * self->scale;
-							point->rotation = Json_getFloat(attachmentMap, "rotation", 0);
-
-							color = Json_getString(attachmentMap, "color", 0);
-							if (color) {
-								spColor_setFromFloats(&point->color,
-									toColor(color, 0),
-									toColor(color, 1),
-									toColor(color, 2),
-									toColor(color, 3));
-							}
-							break;
-						}
-						case SP_ATTACHMENT_CLIPPING: {
-							spClippingAttachment* clip = SUB_CAST(spClippingAttachment, attachment);
-							int vertexCount = 0;
-							const char* end = Json_getString(attachmentMap, "end", 0);
-							if (end) {
-								spSlotData* endSlot = spSkeletonData_findSlot(skeletonData, end);
-								clip->endSlot = endSlot;
-							}
-							vertexCount = Json_getInt(attachmentMap, "vertexCount", 0) << 1;
-							_readVertices(self, attachmentMap, SUPER(clip), vertexCount);
-							spAttachmentLoader_configureAttachment(self->attachmentLoader, attachment);
-							break;
-						}
-						}
-
-						spSkin_setAttachment(skin, slot->index, skinAttachmentName, attachment);
+						continue;
 					}
+
+					switch (attachment->type) {
+					case SP_ATTACHMENT_REGION: {
+						spRegionAttachment* region = SUB_CAST(spRegionAttachment, attachment);
+						if (path) MALLOC_STR(region->path, path);
+						region->x = Json_getFloat(attachmentMap, "x", 0) * self->scale;
+						region->y = Json_getFloat(attachmentMap, "y", 0) * self->scale;
+						region->scaleX = Json_getFloat(attachmentMap, "scaleX", 1);
+						region->scaleY = Json_getFloat(attachmentMap, "scaleY", 1);
+						region->rotation = Json_getFloat(attachmentMap, "rotation", 0);
+						region->width = Json_getFloat(attachmentMap, "width", 32) * self->scale;
+						region->height = Json_getFloat(attachmentMap, "height", 32) * self->scale;
+
+						color = Json_getString(attachmentMap, "color", 0);
+						if (color) {
+							spColor_setFromFloats(&region->color,
+								toColor(color, 0),
+								toColor(color, 1),
+								toColor(color, 2),
+								toColor(color, 3));
+						}
+
+						spRegionAttachment_updateOffset(region);
+
+						spAttachmentLoader_configureAttachment(self->attachmentLoader, attachment);
+						break;
+					}
+					case SP_ATTACHMENT_MESH:
+					case SP_ATTACHMENT_LINKED_MESH: {
+						spMeshAttachment* mesh = SUB_CAST(spMeshAttachment, attachment);
+
+						MALLOC_STR(mesh->path, path);
+
+						color = Json_getString(attachmentMap, "color", 0);
+						if (color) {
+							spColor_setFromFloats(&mesh->color,
+								toColor(color, 0),
+								toColor(color, 1),
+								toColor(color, 2),
+								toColor(color, 3));
+						}
+
+						mesh->width = Json_getFloat(attachmentMap, "width", 32) * self->scale;
+						mesh->height = Json_getFloat(attachmentMap, "height", 32) * self->scale;
+
+						entry = Json_getItem(attachmentMap, "parent");
+						if (!entry) {
+							int verticesLength;
+							entry = Json_getItem(attachmentMap, "triangles");
+							mesh->trianglesCount = entry->size;
+							mesh->triangles = MALLOC(unsigned short, entry->size);
+							for (entry = entry->child, ii = 0; entry; entry = entry->next, ++ii)
+								mesh->triangles[ii] = (unsigned short)entry->valueInt;
+
+							entry = Json_getItem(attachmentMap, "uvs");
+							verticesLength = entry->size;
+							mesh->regionUVs = MALLOC(float, verticesLength);
+							for (entry = entry->child, ii = 0; entry; entry = entry->next, ++ii)
+								mesh->regionUVs[ii] = entry->valueFloat;
+
+							_readVertices(self, attachmentMap, SUPER(mesh), verticesLength);
+
+							spMeshAttachment_updateUVs(mesh);
+
+							mesh->hullLength = Json_getInt(attachmentMap, "hull", 0);
+
+							entry = Json_getItem(attachmentMap, "edges");
+							if (entry) {
+								mesh->edgesCount = entry->size;
+								mesh->edges = MALLOC(int, entry->size);
+								for (entry = entry->child, ii = 0; entry; entry = entry->next, ++ii)
+									mesh->edges[ii] = entry->valueInt;
+							}
+
+							spAttachmentLoader_configureAttachment(self->attachmentLoader, attachment);
+						} else {
+							int inheritDeform = Json_getInt(attachmentMap, "deform", 1);
+							_spSkeletonJson_addLinkedMesh(self, SUB_CAST(spMeshAttachment, attachment),
+								Json_getString(attachmentMap, "skin", 0), slot->index, entry->valueString, inheritDeform);
+						}
+						break;
+					}
+					case SP_ATTACHMENT_BOUNDING_BOX: {
+						spBoundingBoxAttachment* box = SUB_CAST(spBoundingBoxAttachment, attachment);
+						int vertexCount = Json_getInt(attachmentMap, "vertexCount", 0) << 1;
+						_readVertices(self, attachmentMap, SUPER(box), vertexCount);
+						box->super.verticesCount = vertexCount;
+						spAttachmentLoader_configureAttachment(self->attachmentLoader, attachment);
+						break;
+					}
+					case SP_ATTACHMENT_PATH: {
+						spPathAttachment* pathAttachment = SUB_CAST(spPathAttachment, attachment);
+						int vertexCount = 0;
+						pathAttachment->closed = Json_getInt(attachmentMap, "closed", 0);
+						pathAttachment->constantSpeed = Json_getInt(attachmentMap, "constantSpeed", 1);
+						vertexCount = Json_getInt(attachmentMap, "vertexCount", 0);
+						_readVertices(self, attachmentMap, SUPER(pathAttachment), vertexCount << 1);
+
+						pathAttachment->lengthsLength = vertexCount / 3;
+						pathAttachment->lengths = MALLOC(float, pathAttachment->lengthsLength);
+
+						curves = Json_getItem(attachmentMap, "lengths");
+						for (curves = curves->child, ii = 0; curves; curves = curves->next, ++ii)
+							pathAttachment->lengths[ii] = curves->valueFloat * self->scale;
+						break;
+					}
+					case SP_ATTACHMENT_POINT: {
+						spPointAttachment* point = SUB_CAST(spPointAttachment, attachment);
+						point->x = Json_getFloat(attachmentMap, "x", 0) * self->scale;
+						point->y = Json_getFloat(attachmentMap, "y", 0) * self->scale;
+						point->rotation = Json_getFloat(attachmentMap, "rotation", 0);
+
+						color = Json_getString(attachmentMap, "color", 0);
+						if (color) {
+							spColor_setFromFloats(&point->color,
+								toColor(color, 0),
+								toColor(color, 1),
+								toColor(color, 2),
+								toColor(color, 3));
+						}
+						break;
+					}
+					case SP_ATTACHMENT_CLIPPING: {
+						spClippingAttachment* clip = SUB_CAST(spClippingAttachment, attachment);
+						int vertexCount = 0;
+						const char* end = Json_getString(attachmentMap, "end", 0);
+						if (end) {
+							spSlotData* endSlot = spSkeletonData_findSlot(skeletonData, end);
+							clip->endSlot = endSlot;
+						}
+						vertexCount = Json_getInt(attachmentMap, "vertexCount", 0) << 1;
+						_readVertices(self, attachmentMap, SUPER(clip), vertexCount);
+						spAttachmentLoader_configureAttachment(self->attachmentLoader, attachment);
+						break;
+					}
+					}
+
+					spSkin_setAttachment(skin, slot->index, skinAttachmentName, attachment);
 				}
 			}
 		}
 	}
-	//_spPrintLine("finished Json_getItem skins");
+
 	/* Linked meshes. */
 	for (i = 0; i < internal->linkedMeshCount; i++) {
 		spAttachment* parent;
@@ -1184,7 +1137,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 		spMeshAttachment_updateUVs(linkedMesh->mesh);
 		spAttachmentLoader_configureAttachment(self->attachmentLoader, SUPER(SUPER(linkedMesh->mesh)));
 	}
-	//_spPrintLine("finished Linked meshes");
+
 	/* Events. */
 	events = Json_getItem(root, "events");
 	if (events) {
@@ -1208,7 +1161,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 			skeletonData->events[i] = eventData;
 		}
 	}
-	//_spPrintLine("finished Events");
+
 	/* Animations. */
 	animations = Json_getItem(root, "animations");
 	if (animations) {
@@ -1223,8 +1176,7 @@ spSkeletonData* spSkeletonJson_readSkeletonData (spSkeletonJson* self, const cha
 			skeletonData->animations[skeletonData->animationsCount++] = animation;
 		}
 	}
-	//_spPrintLine("finished Animations");
+
 	Json_dispose(root);
-	
 	return skeletonData;
 }

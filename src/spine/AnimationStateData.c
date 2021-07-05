@@ -103,6 +103,7 @@ int spAnimationStateData_setMixByName (spAnimationStateData* self, const char* f
 	to = spSkeletonData_findAnimation(self->skeletonData, toName);
 	if (!to) return 0;
 	spAnimationStateData_setMix(self, from, to, duration);
+
 	return 1;
 }
 

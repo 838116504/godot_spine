@@ -91,9 +91,9 @@ void register_spine_types()
 	_spSetMalloc(spine_malloc);
 	_spSetRealloc(spine_realloc);
 	_spSetFree(spine_free);
-#ifdef DEBUG_ENABLED
-	_spSetPrintLine(spine_print_line);
-#endif
+//#ifdef DEBUG_ENABLED
+//	_spSetPrintLine(spine_print_line);
+//#endif
 }
 
 void unregister_spine_types()

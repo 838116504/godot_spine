@@ -39,9 +39,6 @@ static void* (*reallocFunc) (void* ptr, size_t size) = realloc;
 static void* (*debugMallocFunc) (size_t size, const char* file, int line) = NULL;
 static void (*freeFunc) (void* ptr) = free;
 static float (*randomFunc) () = _spInternalRandom;
-#ifdef DEBUG_ENABLED
-static void (*printLineFunc) (const char* str) = NULL;
-#endif
 
 void* _spMalloc (size_t size, const char* file, int line) {
 	if(debugMallocFunc)
@@ -85,15 +82,9 @@ void _spSetRandom (float (*random) ()) {
 	randomFunc = random;
 }
 
-#ifdef DEBUG_ENABLED
-void _spSetPrintLine(void (*printLine) (const char* str))
-{
-	printLineFunc = printLine;
-}
-#endif
-
 char* _spReadFile (const char* path, int* length) {
 	char *data;
+	size_t result;
 	FILE *file = fopen(path, "rb");
 	if (!file) return 0;
 
@@ -102,7 +93,8 @@ char* _spReadFile (const char* path, int* length) {
 	fseek(file, 0, SEEK_SET);
 
 	data = MALLOC(char, *length);
-	fread(data, 1, *length, file);
+	result = fread(data, 1, *length, file);
+	UNUSED(result);
 	fclose(file);
 
 	return data;
@@ -135,15 +127,3 @@ float _spMath_pow2_apply(float a) {
 float _spMath_pow2out_apply(float a) {
 	return POW(a - 1, 2) * -1 + 1;
 }
-
-
-void _spPrintLine(const char* str)
-{
-#ifdef DEBUG_ENABLED
-	if (printLineFunc != NULL)
-	{
-		printLineFunc(str);
-	}
-#endif
-}
-

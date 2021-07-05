@@ -99,9 +99,7 @@
 #define DEG_RAD (PI / 180)
 #define RAD_DEG (180 / PI)
 
-#ifndef ABS
 #define ABS(A) ((A) < 0? -(A): (A))
-#endif
 #define SIGNUM(A) ((A) < 0? -1.0f: (A) > 0 ? 1.0f : 0.0f)
 
 #ifdef __STDC_VERSION__
@@ -124,9 +122,7 @@
 
 #define SIN_DEG(A) SIN((A) * DEG_RAD)
 #define COS_DEG(A) COS((A) * DEG_RAD)
-#ifndef CLAMP
 #define CLAMP(x, min, max) ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
-#endif
 #ifndef MIN
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #endif
@@ -179,18 +175,12 @@ void* _spCalloc (size_t num, size_t size, const char* file, int line);
 void* _spRealloc(void* ptr, size_t size);
 void _spFree (void* ptr);
 float _spRandom ();
-//#ifdef DEBUG_ENABLED
-void _spPrintLine(const char* str);
-//#endif
 
 SP_API void _spSetMalloc (void* (*_malloc) (size_t size));
 SP_API void _spSetDebugMalloc (void* (*_malloc) (size_t size, const char* file, int line));
 SP_API void _spSetRealloc(void* (*_realloc) (void* ptr, size_t size));
 SP_API void _spSetFree (void (*_free) (void* ptr));
 SP_API void _spSetRandom(float (*_random) ());
-#ifdef DEBUG_ENABLED
-SP_API void _spSetPrintLine(void (*_printLine) (const char* str));
-#endif
 
 char* _spReadFile (const char* path, int* length);
 
