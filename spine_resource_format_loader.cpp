@@ -26,7 +26,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
-
+#ifdef TOOL_ENABLED
 #include "spine_resource_format_loader.h"
 #include "spine.h"
 
@@ -107,3 +107,6 @@ String ResourceFormatLoaderSpineAtlas::get_resource_type(const String &p_path) c
 		return "SpineAtlas";
 	return "";
 }
+
+#endif // TOOL_ENABLED
+

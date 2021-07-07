@@ -38,17 +38,22 @@
 
 //#include "spine_animation.h"
 #include "spine.h"
+
+#ifdef TOOL_ENABLED
 #include "spine_resource_format_loader.h"
+#endif // TOOL_ENABLED
 
 #include "core/os/file_access.h"
 #include "scene/resources/texture.h"
 
+#ifdef TOOL_ENABLED
 #include "spine_animation_inspector_plugin.h"
 
 
 static Ref<ResourceFormatLoaderSpineSkel> resource_loader_spine_skel;
 static Ref<ResourceFormatLoaderSpineAtlas> resource_loader_spine_atlas;
 static Ref<SpineAnimationInspectorPlugin> spine_animation_inspector_plugin;
+#endif // TOOL_ENABLED
 
 typedef Ref<Texture> TextureRef;
 
@@ -91,12 +96,14 @@ void register_spine_types()
 	ClassDB::register_class<SpineSkeletonData>();
 	ClassDB::register_class<SpineEvent>();
 
+#ifdef TOOL_ENABLED
 	resource_loader_spine_skel.instance();
 	ResourceLoader::add_resource_format_loader(resource_loader_spine_skel);
 	resource_loader_spine_atlas.instance();
 	ResourceLoader::add_resource_format_loader(resource_loader_spine_atlas);
 	spine_animation_inspector_plugin.instance();
 	EditorInspector::add_inspector_plugin(spine_animation_inspector_plugin);
+#endif // TOOL_ENABLED
 
 	_spSetMalloc(spine_malloc);
 	_spSetRealloc(spine_realloc);
@@ -108,12 +115,14 @@ void register_spine_types()
 
 void unregister_spine_types()
 {
+#ifdef TOOL_ENABLED
 	ResourceLoader::remove_resource_format_loader(resource_loader_spine_skel);
 	resource_loader_spine_skel.unref();
 	ResourceLoader::remove_resource_format_loader(resource_loader_spine_atlas);
 	resource_loader_spine_atlas.unref();
 	EditorInspector::remove_inspector_plugin(spine_animation_inspector_plugin);
 	spine_animation_inspector_plugin.unref();
+#endif // TOOL_ENABLED
 }
 
 
