@@ -29,7 +29,7 @@
 
 #pragma once
 
-#ifdef TOOL_ENABLED
+#ifdef TOOLS_ENABLED
 #include "core/io/resource_loader.h"
 
 class ResourceFormatLoaderSpineSkel : public ResourceFormatLoader
@@ -50,5 +50,5 @@ public:
 	virtual bool handles_type(const String& p_type) const;
 	virtual String get_resource_type(const String& p_path) const;
 };
-#endif // TOOL_ENABLED
+#endif // TOOLS_ENABLED
 

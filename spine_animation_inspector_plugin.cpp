@@ -27,7 +27,7 @@
  * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#ifdef TOOL_ENABLED
+#ifdef TOOLS_ENABLED
 #include "spine.h"
 
 #include "spine_animation_inspector_plugin.h"
@@ -123,5 +123,5 @@ bool SpineAnimationInspectorPlugin::parse_property(Object *p_object, Variant::Ty
 	}
 }*/
 
-#endif // TOOL_ENABLED
+#endif // TOOLS_ENABLED
 

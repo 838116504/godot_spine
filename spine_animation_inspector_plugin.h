@@ -29,7 +29,7 @@
 
 #pragma once
 
-#ifdef TOOL_ENABLED
+#ifdef TOOLS_ENABLED
 #include "editor/editor_inspector.h"
 
 
@@ -49,4 +49,4 @@ public:
 	SpineAnimationInspectorPlugin() {};
 	virtual ~SpineAnimationInspectorPlugin() {};
 };
-#endif // TOOL_ENABLED
+#endif // TOOLS_ENABLED
