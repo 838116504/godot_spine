@@ -39,21 +39,21 @@
 //#include "spine_animation.h"
 #include "spine.h"
 
-#ifdef TOOL_ENABLED
+#ifdef TOOLS_ENABLED
 #include "spine_resource_format_loader.h"
-#endif // TOOL_ENABLED
+#endif // TOOLS_ENABLED
 
 #include "core/os/file_access.h"
 #include "scene/resources/texture.h"
 
-#ifdef TOOL_ENABLED
+#ifdef TOOLS_ENABLED
 #include "spine_animation_inspector_plugin.h"
 
 
 static Ref<ResourceFormatLoaderSpineSkel> resource_loader_spine_skel;
 static Ref<ResourceFormatLoaderSpineAtlas> resource_loader_spine_atlas;
 static Ref<SpineAnimationInspectorPlugin> spine_animation_inspector_plugin;
-#endif // TOOL_ENABLED
+#endif // TOOLS_ENABLED
 
 typedef Ref<Texture> TextureRef;
 
