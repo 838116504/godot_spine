@@ -1,42 +1,43 @@
 /******************************************************************************
- * Spine Runtimes Software License v2.5
+ * Spine Runtimes License Agreement
+ * Last updated January 1, 2020. Replaces all prior versions.
  *
- * Copyright (c) 2013-2016, Esoteric Software
- * All rights reserved.
+ * Copyright (c) 2013-2020, Esoteric Software LLC
  *
- * You are granted a perpetual, non-exclusive, non-sublicensable, and
- * non-transferable license to use, install, execute, and perform the Spine
- * Runtimes software and derivative works solely for personal or internal
- * use. Without the written permission of Esoteric Software (see Section 2 of
- * the Spine Software License Agreement), you may not (a) modify, translate,
- * adapt, or develop new applications using the Spine Runtimes or otherwise
- * create derivative works or improvements of the Spine Runtimes or (b) remove,
- * delete, alter, or obscure any trademarks or any copyright, trademark, patent,
- * or other intellectual property or proprietary rights notices on or in the
- * Software, including any copy thereof. Redistributions in binary or source
- * form must include this license and terms.
+ * Integration of the Spine Runtimes into software or otherwise creating
+ * derivative works of the Spine Runtimes is permitted under the terms and
+ * conditions of Section 2 of the Spine Editor License Agreement:
+ * http://esotericsoftware.com/spine-editor-license
  *
- * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
- * EVENT SHALL ESOTERIC SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, BUSINESS INTERRUPTION, OR LOSS OF
- * USE, DATA, OR PROFITS) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
- * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Otherwise, it is permitted to integrate the Spine Runtimes into software
+ * or otherwise create derivative works of the Spine Runtimes (collectively,
+ * "Products"), provided that each user of the Products must obtain their own
+ * Spine Editor license and redistribution of the Products in any form must
+ * include this license and copyright notice.
+ *
+ * THE SPINE RUNTIMES ARE PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES,
+ * BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
+
 #ifndef SPINE_H
 #define SPINE_H
 
 #include "core/array.h"
 #include "scene/2d/node_2d.h"
+#include "scene/2d/collision_polygon_2d.h"
+
 #include "spine_batcher.h"
-#include "spine_animation.h"
 #include "spine_animation_attri.h"
 #include "spine_resource.h"
-#include "scene/2d/collision_polygon_2d.h"
+
 
 class Spine : public Node2D {
 
@@ -53,8 +54,8 @@ public:
 		ATTACHMENT_NODE_FLAG_ROTATION = 4,
 		ATTACHMENT_NODE_FLAG_ALL = ATTACHMENT_NODE_FLAG_OFFSET | ATTACHMENT_NODE_FLAG_SCALE | ATTACHMENT_NODE_FLAG_ROTATION
 	};
-	
-	
+
+
 
 private:
 	Ref<SpineSkeletonData> res;
@@ -62,11 +63,11 @@ private:
 	spSkeleton *skeleton;
 	spAnimationState *state;
 	mutable Vector<float> world_verts;
-	
+
 	AnimationProcessMode animation_process_mode;
 	bool playing;
 	bool auto_play;
-	Array internal_animations;
+	//Array internal_animations;
 	SpineBatcher batcher;
 	bool show_bone;
 	float speed_scale;
@@ -76,6 +77,7 @@ private:
 	/*bool collision_whitelist;*/
 	/*PoolStringArray collision_list;*/
 	bool use_bounding_box;
+	Vector<Variant> animations;
 
 	class Polygon
 	{
@@ -92,16 +94,20 @@ private:
 		_FORCE_INLINE_ Polygon() :ref() {};
 		_FORCE_INLINE_ ~Polygon() {
 			Object* obj = ref.get_ref();
-			
+
 			if (obj) {
-				obj->call_deferred("free");
+				obj->call("queue_free");
+				#ifdef DEBUG_ENABLED
 				if (cast_to<Node>(obj))
 					print_line("polygon's object("+  cast_to<Node>(obj)->get_name() + ") free!");
 				else
 					print_line("polygon's obj is not node!");
+				#endif
 			}
+			#ifdef DEBUG_ENABLED
 			else
 				print_line("polygon's obj is null!");
+			#endif
 		};
 	};
 	typedef List<Polygon> BoundingBox;
@@ -134,17 +140,9 @@ private:
 	void _update_verties_count();
 	void _update_attachment_node();
 	void _update_bounding_box();
-	typedef struct {
-		bool isAdd;
-		String anim;
-		int track;
-		union {
-			bool loop;
-			float mix;
-		};
-		float delay;
-	} AddAnimationData;
-	SpineAnimation* _add_animation(const AddAnimationData& p_data);
+
+	spTrackEntry* _add_animation(const String& p_name, int p_trackId, bool p_loop, float p_mix, float p_delay);
+	spTrackEntry* _set_animation(const String& p_name, int p_trackId, bool p_loop, float p_mix);
 	//void _update_polygons();
 
 	bool is_end() const;
@@ -176,8 +174,10 @@ public:
 	String get_skin() const;
 	bool set_skin(const String& p_skin);
 
-	Array get_internal_animations() const;
-	void set_internal_animations(Array p_animations);
+	void set_animations(const Array& p_animations);
+	Vector<Variant> get_animations() const;
+	//Array get_internal_animations() const;
+	//void set_internal_animations(Array p_animations);
 	void set_animation_process_mode(AnimationProcessMode p_mode);
 	AnimationProcessMode get_animation_process_mode() const;
 	void set_playing(bool p_playing);
@@ -203,17 +203,20 @@ public:
 	void set_use_bounding_box(bool p_value);
 	bool is_use_bounding_box() const;
 
-	void add_internal_animations();
-	SpineAnimation* add_animation_by_attribute(Ref<SpineAnimationAttri> p_attribute);
-	SpineAnimation* add_animation(const String& p_name, bool p_loop, float p_delay, int p_track = 0);
-	SpineAnimation* add_empty_animation(float p_mix, float p_delay, int p_track = 0);
-	SpineAnimation* set_animation(const String& p_name, bool p_loop, int p_track = 0);
-	SpineAnimation* set_empty_animation(float p_mix, int p_track = 0);
+	//void add_internal_animations();
+	Error add_animation_by_attribute(Ref<SpineAnimationAttri> p_attribute);
+	Error add_animation(const String& p_name, bool p_loop, float p_delay, int p_track = 0);
+	void add_empty_animation(float p_mix, float p_delay, int p_track = 0);
+
+	Error set_animation_by_attribute(Ref<SpineAnimationAttri> p_attribute);
+	Error set_animation(const String& p_name, bool p_loop, int p_track = 0);
+	void set_empty_animation(float p_mix, int p_track = 0);
+
 	bool has_animation(const String& p_name) const;
-	PoolStringArray get_animations() const;
-	
+	PoolStringArray get_animation_list() const;
+
 	real_t get_animation_duration(const String& p_name) const;
-	SpineAnimation* get_current_animation(int p_track = 0);
+	String get_current_animation(int p_track = 0);
 
 	PoolStringArray get_bones() const;
 	bool has_bone(const String& p_name) const;
@@ -227,10 +230,10 @@ public:
 	String get_slot_attachment(const String& p_name) const;
 	bool set_slot_color(const String& p_name, const Color& p_color);
 	Color get_slot_color(const String& p_name) const;
-	
-	void clear(int p_track = -1);
+
+	void clear_track(int p_track = -1);
 	PoolIntArray get_tracks() const;
-	
+
 	// bind node to bone, auto update pos/rotate/scale
 	String get_attachment_node_bone(const Object* p_node) const;
 	Array get_attachment_nodes(const String &p_bone_name) const;
@@ -246,6 +249,7 @@ public:
 	void set_attachment_node_scale(Object* p_node, Vector2 p_scale);
 
 	void seek(float p_time);
+	void play(float p_delta);
 	float tell() const;
 
 #ifdef TOOLS_ENABLED

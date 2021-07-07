@@ -1,32 +1,32 @@
 /******************************************************************************
-* Spine Runtimes Software License v2.5
-*
-* Copyright (c) 2013-2016, Esoteric Software
-* All rights reserved.
-*
-* You are granted a perpetual, non-exclusive, non-sublicensable, and
-* non-transferable license to use, install, execute, and perform the Spine
-* Runtimes software and derivative works solely for personal or internal
-* use. Without the written permission of Esoteric Software (see Section 2 of
-* the Spine Software License Agreement), you may not (a) modify, translate,
-* adapt, or develop new applications using the Spine Runtimes or otherwise
-* create derivative works or improvements of the Spine Runtimes or (b) remove,
-* delete, alter, or obscure any trademarks or any copyright, trademark, patent,
-* or other intellectual property or proprietary rights notices on or in the
-* Software, including any copy thereof. Redistributions in binary or source
-* form must include this license and terms.
-*
-* THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
-* IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
-* EVENT SHALL ESOTERIC SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, BUSINESS INTERRUPTION, OR LOSS OF
-* USE, DATA, OR PROFITS) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-* IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-* ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-* POSSIBILITY OF SUCH DAMAGE.
-*****************************************************************************/
+ * Spine Runtimes License Agreement
+ * Last updated January 1, 2020. Replaces all prior versions.
+ *
+ * Copyright (c) 2013-2020, Esoteric Software LLC
+ *
+ * Integration of the Spine Runtimes into software or otherwise creating
+ * derivative works of the Spine Runtimes is permitted under the terms and
+ * conditions of Section 2 of the Spine Editor License Agreement:
+ * http://esotericsoftware.com/spine-editor-license
+ *
+ * Otherwise, it is permitted to integrate the Spine Runtimes into software
+ * or otherwise create derivative works of the Spine Runtimes (collectively,
+ * "Products"), provided that each user of the Products must obtain their own
+ * Spine Editor license and redistribution of the Products in any form must
+ * include this license and copyright notice.
+ *
+ * THE SPINE RUNTIMES ARE PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES,
+ * BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *****************************************************************************/
+
 #include "spine_animation_attri.h"
 
 
@@ -50,9 +50,9 @@ void SpineAnimationAttri::set_animation_name(const String& p_name)
 {
 	if (animation_name == p_name)
 		return;
+
 	animation_name = p_name;
-	_change_notify("animation_name");
-	notify_change_to_owners();
+	emit_changed();
 }
 
 int SpineAnimationAttri::get_track() const
@@ -64,9 +64,9 @@ void SpineAnimationAttri::set_track(int p_track)
 {
 	if (track == p_track)
 		return;
+
 	track = p_track;
-	_change_notify("track");
-	notify_change_to_owners();
+	emit_changed();
 }
 
 float SpineAnimationAttri::get_delay() const
@@ -78,9 +78,9 @@ void SpineAnimationAttri::set_delay(float p_time)
 {
 	if (delay == p_time)
 		return;
+
 	delay = p_time;
-	_change_notify("delay");
-	notify_change_to_owners();
+	emit_changed();
 }
 
 bool SpineAnimationAttri::get_loop() const
@@ -92,9 +92,9 @@ void SpineAnimationAttri::set_loop(bool p_loop)
 {
 	if (loop == p_loop)
 		return;
+
 	loop = p_loop;
-	_change_notify("loop");
-	notify_change_to_owners();
+	emit_changed();
 }
 
 float SpineAnimationAttri::get_mix() const
@@ -106,9 +106,9 @@ void SpineAnimationAttri::set_mix(float p_time)
 {
 	if (mix == p_time)
 		return;
+
 	mix = p_time;
-	_change_notify("mix");
-	notify_change_to_owners();
+	emit_changed();
 }
 
 bool SpineAnimationAttri::is_use_mix()
@@ -120,8 +120,9 @@ void SpineAnimationAttri::set_use_mix(bool p_value)
 {
 	if (use_mix == p_value)
 		return;
+
 	use_mix = p_value;
-	_change_notify("use_mix");
+	emit_changed();
 }
 
 float SpineAnimationAttri::get_alpha() const
@@ -133,9 +134,9 @@ void SpineAnimationAttri::set_alpha(float p_alpha)
 {
 	if (alpha == p_alpha)
 		return;
+
 	alpha = p_alpha;
-	_change_notify("alpha");
-	notify_change_to_owners();
+	emit_changed();
 }
 
 float SpineAnimationAttri::get_start() const
@@ -147,9 +148,9 @@ void SpineAnimationAttri::set_start(float p_time)
 {
 	if (start == p_time)
 		return;
+
 	start = p_time;
-	_change_notify("start");
-	notify_change_to_owners();
+	emit_changed();
 }
 
 float SpineAnimationAttri::get_end() const
@@ -161,9 +162,9 @@ void SpineAnimationAttri::set_end(float p_time)
 {
 	if (end == p_time)
 		return;
+
 	end = p_time;
-	_change_notify("end");
-	notify_change_to_owners();
+	emit_changed();
 }
 
 bool SpineAnimationAttri::is_use_end()
@@ -175,8 +176,9 @@ void SpineAnimationAttri::set_use_end(bool p_value)
 {
 	if (use_end == p_value)
 		return;
+
 	use_end = p_value;
-	_change_notify("use_end");
+	emit_changed();
 }
 
 float SpineAnimationAttri::get_speed_scale() const
@@ -188,9 +190,9 @@ void SpineAnimationAttri::set_speed_scale(float p_scale)
 {
 	if (speed_scale == p_scale)
 		return;
+
 	speed_scale = p_scale;
-	_change_notify("speed_scale");
-	notify_change_to_owners();
+	emit_changed();
 }
 
 //bool SpineAnimationAttri::_set(const StringName& p_name, const Variant& p_value)

@@ -134,26 +134,17 @@ SP_API void spAnimationState_clearTracks (spAnimationState* self);
 SP_API void spAnimationState_clearTrack (spAnimationState* self, int trackIndex);
 
 /** Set the current animation. Any queued animations are cleared. */
-SP_API spTrackEntry* spAnimationState_setAnimationByNameWithData (spAnimationState* self, int trackIndex, const char* animationName,
-	int/*bool*/loop, void* userData);
 SP_API spTrackEntry* spAnimationState_setAnimationByName (spAnimationState* self, int trackIndex, const char* animationName,
 		int/*bool*/loop);
-SP_API spTrackEntry* spAnimationState_setAnimationWithData (spAnimationState* self, int trackIndex, spAnimation* animation, int/*bool*/loop, void* userData);
 SP_API spTrackEntry* spAnimationState_setAnimation (spAnimationState* self, int trackIndex, spAnimation* animation, int/*bool*/loop);
 
 /** Adds an animation to be played delay seconds after the current or last queued animation, taking into account any mix
  * duration. */
-SP_API spTrackEntry* spAnimationState_addAnimationByNameWithData (spAnimationState* self, int trackIndex, const char* animationName,
-		int/*bool*/loop, float delay, void* userData);
 SP_API spTrackEntry* spAnimationState_addAnimationByName (spAnimationState* self, int trackIndex, const char* animationName,
 		int/*bool*/loop, float delay);
-SP_API spTrackEntry* spAnimationState_addAnimationWithData (spAnimationState* self, int trackIndex, spAnimation* animation, int/*bool*/loop,
-		float delay, void* userData);
 SP_API spTrackEntry* spAnimationState_addAnimation (spAnimationState* self, int trackIndex, spAnimation* animation, int/*bool*/loop,
 		float delay);
-SP_API spTrackEntry* spAnimationState_setEmptyAnimationWithData(spAnimationState* self, int trackIndex, float mixDuration, void* userData);
 SP_API spTrackEntry* spAnimationState_setEmptyAnimation(spAnimationState* self, int trackIndex, float mixDuration);
-SP_API spTrackEntry* spAnimationState_addEmptyAnimationWithData(spAnimationState* self, int trackIndex, float mixDuration, float delay, void* userData);
 SP_API spTrackEntry* spAnimationState_addEmptyAnimation(spAnimationState* self, int trackIndex, float mixDuration, float delay);
 SP_API void spAnimationState_setEmptyAnimations(spAnimationState* self, float mixDuration);
 

@@ -1,37 +1,38 @@
 /******************************************************************************
- * Spine Runtimes Software License v2.5
+ * Spine Runtimes License Agreement
+ * Last updated January 1, 2020. Replaces all prior versions.
  *
- * Copyright (c) 2013-2016, Esoteric Software
- * All rights reserved.
+ * Copyright (c) 2013-2020, Esoteric Software LLC
  *
- * You are granted a perpetual, non-exclusive, non-sublicensable, and
- * non-transferable license to use, install, execute, and perform the Spine
- * Runtimes software and derivative works solely for personal or internal
- * use. Without the written permission of Esoteric Software (see Section 2 of
- * the Spine Software License Agreement), you may not (a) modify, translate,
- * adapt, or develop new applications using the Spine Runtimes or otherwise
- * create derivative works or improvements of the Spine Runtimes or (b) remove,
- * delete, alter, or obscure any trademarks or any copyright, trademark, patent,
- * or other intellectual property or proprietary rights notices on or in the
- * Software, including any copy thereof. Redistributions in binary or source
- * form must include this license and terms.
+ * Integration of the Spine Runtimes into software or otherwise creating
+ * derivative works of the Spine Runtimes is permitted under the terms and
+ * conditions of Section 2 of the Spine Editor License Agreement:
+ * http://esotericsoftware.com/spine-editor-license
  *
- * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
- * EVENT SHALL ESOTERIC SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, BUSINESS INTERRUPTION, OR LOSS OF
- * USE, DATA, OR PROFITS) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
- * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Otherwise, it is permitted to integrate the Spine Runtimes into software
+ * or otherwise create derivative works of the Spine Runtimes (collectively,
+ * "Products"), provided that each user of the Products must obtain their own
+ * Spine Editor license and redistribution of the Products in any form must
+ * include this license and copyright notice.
+ *
+ * THE SPINE RUNTIMES ARE PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES,
+ * BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
+
 #include "spine.h"
+//#include "core/array.h"
+//#include "scene/resources/convex_polygon_shape_2d.h"
+
 #include <spine/extension.h>
 #include <spine/spine.h>
-#include "core/array.h"
-#include "scene/resources/convex_polygon_shape_2d.h"
 
 
 /*
@@ -51,67 +52,75 @@ void Spine::spine_animation_callback(spAnimationState *p_state, spEventType p_ty
 
 void Spine::_on_animation_state_event(spTrackEntry *p_track, spEventType p_type, spEvent *p_event)
 {
-	SpineAnimation* animation = reinterpret_cast<SpineAnimation*>(p_track->userData);
+	//SpineAnimation* animation = reinterpret_cast<SpineAnimation*>(p_track->userData);
 	switch (p_type) {
 		case SP_ANIMATION_START:
-			if (animation)
-			{
-				animation->trackEntry = p_track;
-			}
-			emit_signal("animation_started", animation);
-			if (animation)
-				animation->emit_signal("started");
+			//if (animation)
+			//{
+			//	animation->trackEntry = p_track;
+			//}
+			//emit_signal("animation_started", animation);
+			//if (animation)
+			//	animation->emit_signal("started");
+			emit_signal("animation_started", String(p_track->animation->name));
 			break;
 		case SP_ANIMATION_INTERRUPT:
-			emit_signal("animation_interrupted", animation);
-			if (animation)
-				animation->emit_signal("interrupted");
+			//emit_signal("animation_interrupted", animation);
+			//if (animation)
+			//	animation->emit_signal("interrupted");
+			emit_signal("animation_interrupted", String(p_track->animation->name));
 			break;
 		case SP_ANIMATION_COMPLETE:
-			emit_signal("animation_completed", animation);
+			//emit_signal("animation_completed", animation);
 
-			if (animation)
-				animation->emit_signal("completed");
+			//if (animation)
+			//	animation->emit_signal("completed");
+			emit_signal("animation_completed", String(p_track->animation->name));
 			if (!p_track->loop && p_track->next == NULL)
 			{
-				clear(p_track->trackIndex);
+				clear_track(p_track->trackIndex);
 			}
 			break;
 		case SP_ANIMATION_END:
-			emit_signal("animation_ended", animation);
+			//emit_signal("animation_ended", animation);
+			emit_signal("animation_ended", String(p_track->animation->name));
 
-			if (animation)
-				animation->emit_signal("ended");
+			//if (animation)
+			//	animation->emit_signal("ended");
 
 			if (playing && is_end())
 			{
-				if (!auto_play || internal_animations.size() == 0)
-				{
+				//if (!auto_play || internal_animations.size() == 0)
+				//{
 					set_playing(false);
-					emit_signal("ended");
-				}
+					//animation->emit_signal("ended");
+				//}
 			}
 			break;
 		case SP_ANIMATION_EVENT:
 		{
-			Dictionary params;
-			params["int"] = p_event->intValue;
-			params["float"] = p_event->floatValue;
-			params["str"] = p_event->stringValue ? p_event->stringValue : "";
-			emit_signal("animation_event", animation, p_event->data->name, params);
-			if (animation)
-				animation->emit_signal("event", p_event->data->name, p_event->intValue, p_event->floatValue, p_event->stringValue ? p_event->stringValue : "");
+			Ref<SpineEvent> event;
+			event.instance();
+			event->set_event(p_event);
+			emit_signal("animation_event", String(p_track->animation->name), event);
+			//Dictionary params;
+			//params["int"] = p_event->intValue;
+			//params["float"] = p_event->floatValue;
+			//params["str"] = p_event->stringValue ? p_event->stringValue : "";
+			//emit_signal("animation_event", animation, p_event->data->name, params);
+			//if (animation)
+			//	animation->emit_signal("event", p_event->data->name, p_event->intValue, p_event->floatValue, p_event->stringValue ? p_event->stringValue : "");
 		} break;
 		case SP_ANIMATION_DISPOSE:
-			if (animation)
-				memdelete(animation);
-			if (playing && is_end())
-			{
-				if (auto_play && internal_animations.size() > 0)
-				{
-					add_internal_animations();
-				}
-			}
+			//if (animation)
+			//	memdelete(animation);
+			//if (playing && is_end())
+			//{
+			//	if (auto_play && internal_animations.size() > 0)
+			//	{
+			//		add_internal_animations();
+			//	}
+			//}
 			break;
 	}
 }
@@ -120,17 +129,17 @@ void Spine::_spine_dispose()
 {
 	if (state)
 	{
-		spAnimationStateData_dispose(state->data);
+		spAnimationStateData* data = state->data;
 		spAnimationState_dispose(state);
+		spAnimationStateData_dispose(data);
 		state = NULL;
 	}
 
 	if (skeleton)
+	{
 		spSkeleton_dispose(skeleton);
-
-
-	skeleton = NULL;
-
+		skeleton = NULL;
+	}
 
 	for (AttachmentNodes::Element *E = attachment_nodes.front(); E; E = E->next())
 	{
@@ -170,10 +179,10 @@ void Spine::_spine_create()
 	_update_verties_count();
 
 	reset();
-	if (auto_play && playing)
-	{
-		add_internal_animations();
-	}
+	//if (auto_play && playing)
+	//{
+	//	add_internal_animations();
+	//}
 }
 
 static Ref<Texture> spine_get_texture(spRegionAttachment *attachment) {
@@ -283,8 +292,13 @@ void Spine::_animation_draw() {
 
 void Spine::_animation_process(float p_delta)
 {
-	spAnimationState_update(state, p_delta);
-	spAnimationState_apply(state, skeleton);
+	if (state && state->tracksCount > 0)
+	{
+		if (p_delta != 0)
+			spAnimationState_update(state, p_delta);
+		spAnimationState_apply(state, skeleton);
+	}
+
 	spSkeleton_updateWorldTransform(skeleton);
 	_update_attachment_node();
 
@@ -442,11 +456,11 @@ bool Spine::_set(const StringName &p_name, const Variant &p_value)
 		set_skin(p_value);
 		return true;
 	}
-	else if (p_name == "clear_tracks")
+	else if (p_name == "reset")
 	{
 		if ((bool)p_value)
 		{
-			clear();
+			reset();
 			_change_notify();
 		}
 		return true;
@@ -463,7 +477,7 @@ bool Spine::_get(const StringName &p_name, Variant &r_ret) const
 		r_ret = get_skin();
 		return true;
 	}
-	else if (p_name == "clear_tracks")
+	else if (p_name == "reset")
 	{
 		ERR_FAIL_COND_V(!skeleton, true);
 		r_ret = false;
@@ -493,7 +507,7 @@ void Spine::_get_property_list(List<PropertyInfo> *p_list) const
 		}
 		if (!is_end())
 		{
-			p_list->push_back(PropertyInfo(Variant::BOOL, "clear_tracks", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
+			p_list->push_back(PropertyInfo(Variant::BOOL, "reset", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
 		}
 	}
 }
@@ -501,21 +515,23 @@ void Spine::_get_property_list(List<PropertyInfo> *p_list) const
 void Spine::_notification(int p_what) {
 	switch (p_what)
 	{
-		case NOTIFICATION_PROCESS: {
-			if (animation_process_mode == ANIMATION_PROCESS_FIXED)
-				break;
+		//case NOTIFICATION_PROCESS:
+		case NOTIFICATION_INTERNAL_PROCESS:
+		{
+			//if (animation_process_mode == ANIMATION_PROCESS_FIXED)
+			//	break;
 
-			if (playing)
-				_animation_process(get_process_delta_time());
+			//if (playing)
+			_animation_process(get_process_delta_time());
 		} break;
-		case NOTIFICATION_PHYSICS_PROCESS:
+		/*case NOTIFICATION_PHYSICS_PROCESS:
 		{
 			if (animation_process_mode == ANIMATION_PROCESS_IDLE)
 				break;
 
 			if (playing)
 				_animation_process(get_physics_process_delta_time());
-		} break;
+		} break;*/
 		case NOTIFICATION_DRAW:
 		{
 			_animation_draw();
@@ -525,6 +541,13 @@ void Spine::_notification(int p_what) {
 			break;
 		case NOTIFICATION_PARENTED:
 			_update_bounding_box();
+			break;
+		case NOTIFICATION_READY:
+			if (auto_play)
+			{
+				reset();
+				set_playing(true);
+			}
 			break;
 	}
 }
@@ -552,6 +575,7 @@ void Spine::set_resource(Ref<SpineSkeletonData> p_data)
 	_spine_create();
 	_change_notify();
 	update();
+	emit_signal("resource_changed");
 }
 
 Ref<SpineSkeletonData> Spine::get_resource()
@@ -568,8 +592,9 @@ void Spine::resource_changed(Ref<Resource> p_res)
 		_spine_create();
 		_change_notify();
 		update();
+		emit_signal("resource_changed");
 	}
-	else if (cast_to<SpineAnimationAttri>(*p_res))
+	/*else if (cast_to<SpineAnimationAttri>(*p_res))
 	{
 		for (int i = 0; i < internal_animations.size(); ++i)
 		{
@@ -579,9 +604,7 @@ void Spine::resource_changed(Ref<Resource> p_res)
 				break;
 			}
 		}
-	}
-
-	return;
+	}*/
 }
 
 PoolStringArray Spine::get_skins()
@@ -622,136 +645,161 @@ bool Spine::set_skin(const String& p_skin)
 	ERR_FAIL_COND_V(!skeleton, false);
 	ERR_FAIL_COND_V(!skeleton->data->defaultSkin, false);
 
+	if (skeleton->skin && skeleton->skin->name == p_skin)
+		return true;
+
 	if (p_skin == skeleton->data->defaultSkin->name || p_skin == "")
 	{
 		if (skeleton->skin == NULL)
 			return true;
+
 		spSkeleton_setSkin(skeleton, 0);
 	}
 	else if (has_skin(p_skin))
 	{
-		if (skeleton->skin && skeleton->skin->name == p_skin)
-			return true;
 		spSkeleton_setSkinByName(skeleton, String(p_skin).utf8().get_data());
 	}
 	else
 		return false;
+
 	spSkeleton_setSlotsToSetupPose(skeleton);
-	spAnimationState_apply(state, skeleton);
-	update();
+	//spAnimationState_apply(state, skeleton);
+	//update();
+	_animation_process(0);
+
 	return true;
 }
 
-void Spine::add_internal_animations()
-{
-	for (int i = 0; i < internal_animations.size(); ++i)
-	{
-		add_animation_by_attribute(cast_to<SpineAnimationAttri>(internal_animations[i]));
-	}
-}
+//void Spine::add_internal_animations()
+//{
+//	for (int i = 0; i < internal_animations.size(); ++i)
+//	{
+//		add_animation_by_attribute(cast_to<SpineAnimationAttri>(internal_animations[i]));
+//	}
+//}
 
-SpineAnimation* Spine::add_animation_by_attribute(Ref<SpineAnimationAttri> p_attribute)
+Error Spine::add_animation_by_attribute(Ref<SpineAnimationAttri> p_attribute)
 {
-	ERR_FAIL_COND_V(!state, nullptr);
-	ERR_FAIL_COND_V(p_attribute.is_null(), nullptr);
-	SpineAnimation* anim;
-	if (p_attribute->get_animation_name() != "")
-		anim = add_animation(p_attribute->get_animation_name(), p_attribute->get_track(), p_attribute->get_loop(), p_attribute->get_delay());
-	else
-		anim = add_empty_animation(p_attribute->get_track(), p_attribute->get_mix(), p_attribute->get_delay());
-	if (!anim)
-		return nullptr;
+	ERR_FAIL_COND_V(!state, FAILED);
+	if (p_attribute.is_null())
+		return FAILED;
+
+	spTrackEntry* trackEntry;
+	trackEntry = _add_animation(p_attribute->get_animation_name(), p_attribute->get_track(), p_attribute->get_loop(), p_attribute->get_mix(), p_attribute->get_delay());
+
+	if (!trackEntry)
+		return FAILED;
+
 	if (p_attribute->is_use_mix())
-		anim->set_mix_duration(p_attribute->get_mix());
-	if (p_attribute->get_alpha() < 1.0)
-		anim->set_alpha(p_attribute->get_alpha());
+		trackEntry->mixDuration = p_attribute->get_mix();
+
+	trackEntry->alpha = p_attribute->get_alpha();
+
 	if (p_attribute->get_start() > 0)
-		anim->set_start(p_attribute->get_start());
+		trackEntry->animationStart = p_attribute->get_start();
 	if (p_attribute->is_use_end())
-		anim->set_end(p_attribute->get_end());
-	if (p_attribute->get_speed_scale() != 1.0)
-		anim->set_speed_scale(p_attribute->get_speed_scale());
-	return anim;
+		trackEntry->animationEnd = p_attribute->get_end();
+
+	trackEntry->timeScale = p_attribute->get_speed_scale();
+
+	return OK;
 }
 
-SpineAnimation* Spine::add_animation(const String& p_name, bool p_loop, float p_delay, int p_track)
+Error Spine::add_animation(const String& p_name, bool p_loop, float p_delay, int p_track)
 {
-	AddAnimationData data = AddAnimationData();
-	data.isAdd = true;
-	data.anim = p_name;
-	data.track = p_track;
-	data.loop = p_loop;
-	data.delay = p_delay;
-	return _add_animation(data);
+	return _add_animation(p_name, p_track, p_loop, 0, p_delay) ? OK : FAILED;
 }
 
-SpineAnimation* Spine::add_empty_animation(float p_mix, float p_delay, int p_track)
+void Spine::add_empty_animation(float p_mix, float p_delay, int p_track)
 {
-	AddAnimationData data = AddAnimationData();
-	data.isAdd = true;
-	data.anim = "";
-	data.track = p_track;
-	data.mix = p_mix;
-	data.delay = p_delay;
-	return _add_animation(data);
+	_add_animation("", p_track, false, p_mix, p_delay);
 }
 
-SpineAnimation* Spine::set_animation(const String& p_name, bool p_loop, int p_track)
+Error Spine::set_animation_by_attribute(Ref<SpineAnimationAttri> p_attribute)
 {
-	AddAnimationData data = AddAnimationData();
-	data.isAdd = false;
-	data.anim = p_name;
-	data.track = p_track;
-	data.loop = p_loop;
-	return _add_animation(data);
-}
-SpineAnimation* Spine::set_empty_animation(float p_mix, int p_track)
-{
-	AddAnimationData data = AddAnimationData();
-	data.isAdd = false;
-	data.anim = "";
-	data.track = p_track;
-	data.mix = p_mix;
-	return _add_animation(data);
+	ERR_FAIL_COND_V(!state, FAILED);
+	if (p_attribute.is_null())
+		return FAILED;
+
+	spTrackEntry* trackEntry;
+	trackEntry = _set_animation(p_attribute->get_animation_name(), p_attribute->get_track(), p_attribute->get_loop(), p_attribute->get_mix());
+
+	if (!trackEntry)
+		return FAILED;
+
+	if (p_attribute->is_use_mix())
+		trackEntry->mixDuration = p_attribute->get_mix();
+
+	trackEntry->alpha = p_attribute->get_alpha();
+
+	if (p_attribute->get_start() > 0)
+		trackEntry->animationStart = p_attribute->get_start();
+	if (p_attribute->is_use_end())
+		trackEntry->animationEnd = p_attribute->get_end();
+
+	trackEntry->timeScale = p_attribute->get_speed_scale();
+
+	return OK;
 }
 
-SpineAnimation* Spine::_add_animation(const AddAnimationData& p_data)
+Error Spine::set_animation(const String& p_name, bool p_loop, int p_track)
+{
+	return _set_animation(p_name, p_track, p_loop, 0) ? OK : FAILED;
+}
+
+void Spine::set_empty_animation(float p_mix, int p_track)
+{
+	_set_animation("", p_track, false, p_mix);
+}
+
+spTrackEntry* Spine::_add_animation(const String& p_name, int p_trackId, bool p_loop, float p_mix, float p_delay)
 {
 	ERR_FAIL_COND_V(!state, nullptr);
 	bool ended = is_end();
-	SpineAnimation* ret = memnew(SpineAnimation);
-	ret->state = state;
-	spTrackEntry* trackEntry;
-	if (p_data.isAdd)
-	{
-		if (p_data.anim == "")
-			trackEntry = spAnimationState_addEmptyAnimationWithData(state, p_data.track, p_data.mix, p_data.delay, ret);
-		else
-			trackEntry = spAnimationState_addAnimationByNameWithData(state, p_data.track, p_data.anim.utf8().get_data(), p_data.loop, p_data.delay, ret);
-	}
+	spTrackEntry* trackEntry = NULL;
+
+	if (p_name == "")
+		trackEntry = spAnimationState_addEmptyAnimation(state, p_trackId, p_mix, p_delay);
 	else
-	{
-		if (p_data.anim == "")
-			trackEntry = spAnimationState_setEmptyAnimationWithData(state, p_data.track, p_data.mix, ret);
-		else
-			trackEntry = spAnimationState_setAnimationByNameWithData(state, p_data.track, p_data.anim.utf8().get_data(), p_data.loop, ret);
-	}
+		trackEntry = spAnimationState_addAnimationByName(state, p_trackId, p_name.utf8().get_data(), p_loop, p_delay);
 
 	if (!trackEntry)
 	{
-		memdelete(ret);
 		return nullptr;
 	}
+
 	/* 需要显示clear tracks屬性 */
 	if (ended)
 	{
 		_change_notify();
 	}
+
+	return trackEntry;
+}
+
+spTrackEntry* Spine::_set_animation(const String& p_name, int p_trackId, bool p_loop, float p_mix)
+{
+	ERR_FAIL_COND_V(!state, nullptr);
+	bool ended = is_end();
+	spTrackEntry* trackEntry = NULL;
+
+	if (p_name == "")
+		trackEntry = spAnimationState_setEmptyAnimation(state, p_trackId, p_mix);
 	else
+		trackEntry = spAnimationState_setAnimationByName(state, p_trackId, p_name.utf8().get_data(), p_loop);
+
+	if (!trackEntry)
 	{
-		ret->trackEntry = trackEntry;
+		return nullptr;
 	}
-	return ret;
+
+	/* 需要显示clear tracks屬性 */
+	if (ended)
+	{
+		_change_notify();
+	}
+
+	return trackEntry;
 }
 
 bool Spine::has_animation(const String& p_name) const
@@ -761,11 +809,12 @@ bool Spine::has_animation(const String& p_name) const
 	return spSkeletonData_findAnimation(skeleton->data, p_name.utf8().get_data());
 }
 
-PoolStringArray Spine::get_animations() const
+PoolStringArray Spine::get_animation_list() const
 {
 	PoolStringArray ret;
 	if (skeleton == NULL)
 		return ret;
+
 	for (int i = 0; i < skeleton->data->animationsCount; ++i)
 	{
 		ret.append(skeleton->data->animations[i]->name);
@@ -781,13 +830,15 @@ real_t Spine::get_animation_duration(const String& p_name) const
 	return anim->duration;
 }
 
-SpineAnimation* Spine::get_current_animation(int p_track)
+String Spine::get_current_animation(int p_track)
 {
-	ERR_FAIL_COND_V(!state, nullptr);
+	ERR_FAIL_COND_V(!state, "");
+
 	spTrackEntry* track = spAnimationState_getCurrent(state, p_track);
-	if (!track || !track->userData)
-		return nullptr;
-	return (SpineAnimation*)(track->userData);
+	if (!track)
+		return "";
+
+	return track->animation->name;
 }
 
 PoolStringArray Spine::get_bones() const
@@ -819,6 +870,7 @@ Transform2D Spine::get_bone_local_transform(const String& p_name) const
 	/*Transform2D ret = Transform2D(Math::atan2(c, d), Vector2(bone->x, -bone->y));
 	ret.set_scale(Vector2(SQRT(a * a + c * c), SQRT(b * b + d * d)));*/
 	Transform2D ret = Transform2D(a, b, c, d, bone->x, -bone->y);
+
 	return ret;
 }
 Transform2D Spine::get_bone_world_transform(const String& p_name) const
@@ -828,6 +880,7 @@ Transform2D Spine::get_bone_world_transform(const String& p_name) const
 	/*Transform2D ret = Transform2D(Math::atan2(bone->c, bone->d), Vector2(bone->worldX, -bone->worldY));
 	ret.set_scale(Vector2(spBone_getWorldScaleX(bone), spBone_getWorldScaleY(bone)));*/
 	Transform2D ret = Transform2D(bone->a, bone->b, bone->c, bone->d, bone->worldX, -bone->worldY);
+
 	return ret;
 }
 
@@ -914,7 +967,7 @@ Color Spine::get_slot_color(const String& p_name) const
 
 bool Spine::is_end() const
 {
-	if (skeleton == NULL)
+	if (state == NULL)
 		return true;
 
 	for (int i = 0; i < state->tracksCount; ++i)
@@ -925,9 +978,10 @@ bool Spine::is_end() const
 	return true;
 }
 
-void Spine::clear(int p_track)
+void Spine::clear_track(int p_track)
 {
 	ERR_FAIL_COND(!state);
+
 	if (p_track < 0)
 		spAnimationState_clearTracks(state);
 	else
@@ -951,11 +1005,27 @@ void Spine::reset()
 	if (skeleton == NULL) {
 		return;
 	}
-	spSkeleton_setToSetupPose(skeleton);
-	_animation_process(0.0);
+
+	seek(0.0);
 }
 
-void Spine::seek(float p_delta) {
+void Spine::seek(float p_time)
+{
+	ERR_FAIL_COND(state == NULL);
+
+	spAnimationState_clearTracks(state);
+	spSkeleton_setToSetupPose(skeleton);
+
+	for (int i = 0; i < animations.size(); ++i)
+	{
+		add_animation_by_attribute(animations[i]);
+	}
+
+	_animation_process(p_time);
+}
+
+void Spine::play(float p_delta)
+{
 	ERR_FAIL_COND(state == NULL);
 	_animation_process(p_delta);
 }
@@ -1117,32 +1187,64 @@ void Spine::set_attachment_node_scale(Object* p_node, Vector2 p_scale)
 	_update_attachment_node();
 }
 
-Array Spine::get_internal_animations() const
+//Array Spine::get_internal_animations() const
+//{
+//	return internal_animations;
+//}
+
+//void Spine::set_internal_animations(Array p_animations)
+//{
+//	for (int i = 0; i < internal_animations.size(); ++i)
+//	{
+//		Ref<SpineAnimationAttri>(internal_animations[i])->unregister_owner(this);
+//	}
+//	internal_animations.resize(p_animations.size());
+//
+//	for (int i = 0; i < internal_animations.size(); ++i)
+//	{
+//		internal_animations[i] = p_animations[i];
+//		if (!internal_animations[i].is_ref() || Ref<SpineAnimationAttri>(internal_animations[i]).is_null())
+//		{
+//			Ref<SpineAnimationAttri> ref(memnew(SpineAnimationAttri));
+//			if (skeleton != NULL)
+//				ref->set_animation_name(skeleton->data->animations[rand() % skeleton->data->animationsCount]->name);
+//			internal_animations[i] = ref;
+//		}
+//		Ref<SpineAnimationAttri>(internal_animations[i])->register_owner(this);
+//	}
+//	_change_notify("internal_animations");
+//}
+
+void Spine::set_animations(const Array& p_animations)
 {
-	return internal_animations;
+	animations.clear();
+	for (int i = 0; i < p_animations.size(); ++i)
+	{
+		Ref<SpineAnimationAttri> attri;
+		if (p_animations[i].get_type() == Variant::STRING)
+		{
+			attri.instance();
+			attri->set_animation_name(p_animations[i]);
+			attri->set_track(i);
+
+		}
+		else if (p_animations[i].get_type() == Variant::OBJECT)
+		{
+			attri = p_animations[i];
+		}
+
+		if (attri.is_null())
+			attri.instance();
+
+		animations.push_back(attri);
+	}
+
+	_change_notify("animations");
 }
 
-void Spine::set_internal_animations(Array p_animations)
+Vector<Variant> Spine::get_animations() const
 {
-	for (int i = 0; i < internal_animations.size(); ++i)
-	{
-		Ref<SpineAnimationAttri>(internal_animations[i])->unregister_owner(this);
-	}
-	internal_animations.resize(p_animations.size());
-
-	for (int i = 0; i < internal_animations.size(); ++i)
-	{
-		internal_animations[i] = p_animations[i];
-		if (!internal_animations[i].is_ref() || Ref<SpineAnimationAttri>(internal_animations[i]).is_null())
-		{
-			Ref<SpineAnimationAttri> ref(memnew(SpineAnimationAttri));
-			if (skeleton != NULL)
-				ref->set_animation_name(skeleton->data->animations[rand() % skeleton->data->animationsCount]->name);
-			internal_animations[i] = ref;
-		}
-		Ref<SpineAnimationAttri>(internal_animations[i])->register_owner(this);
-	}
-	_change_notify("internal_animations");
+	return animations;
 }
 
 void Spine::set_animation_process_mode(AnimationProcessMode p_mode) {
@@ -1176,21 +1278,30 @@ void Spine::set_playing(bool p_playing)
 {
 	if (playing == p_playing)
 		return;
+
+
 	if (p_playing && is_end())
 	{
-		if (auto_play && internal_animations.size() > 0)
-		{
-			add_internal_animations();
-		}
-		else
-			return;
-	}
-	playing = p_playing;
+		reset();
 
-	if (animation_process_mode == AnimationProcessMode::ANIMATION_PROCESS_FIXED)
-		set_physics_process(playing);
-	else
-		set_process(playing);
+		if (is_end())
+			return;
+	//	if (auto_play && internal_animations.size() > 0)
+	//	{
+	//		add_internal_animations();
+	//	}
+	//	else
+	//		return;
+	}
+
+	playing = p_playing;
+	set_process_internal(playing);
+
+	//if (animation_process_mode == AnimationProcessMode::ANIMATION_PROCESS_FIXED)
+	//	set_physics_process(playing);
+	//else
+	//	set_process(playing);
+
 	_change_notify();
 }
 
@@ -1283,6 +1394,7 @@ void Spine::set_default_mix(float p_mix)
 	}
 	_change_notify("default_mix");
 }
+
 float Spine::get_default_mix() const
 {
 	return default_mix;
@@ -1360,10 +1472,12 @@ void Spine::_bind_methods()
 	ClassDB::bind_method(D_METHOD("set_skin", "value"), &Spine::set_skin);
 	ClassDB::bind_method(D_METHOD("get_skin"), &Spine::get_skin);
 
-	ClassDB::bind_method(D_METHOD("set_internal_animations", "animations"), &Spine::set_internal_animations);
-	ClassDB::bind_method(D_METHOD("get_internal_animations"), &Spine::get_internal_animations);
-	ClassDB::bind_method(D_METHOD("set_animation_process_mode", "value"), &Spine::set_animation_process_mode);
-	ClassDB::bind_method(D_METHOD("get_animation_process_mode"), &Spine::get_animation_process_mode);
+	ClassDB::bind_method(D_METHOD("set_animations", "animations"), &Spine::set_animations);
+	ClassDB::bind_method(D_METHOD("get_animations"), &Spine::get_animations);
+	//ClassDB::bind_method(D_METHOD("set_internal_animations", "animations"), &Spine::set_internal_animations);
+	//ClassDB::bind_method(D_METHOD("get_internal_animations"), &Spine::get_internal_animations);
+	//ClassDB::bind_method(D_METHOD("set_animation_process_mode", "value"), &Spine::set_animation_process_mode);
+	//ClassDB::bind_method(D_METHOD("get_animation_process_mode"), &Spine::get_animation_process_mode);
 	ClassDB::bind_method(D_METHOD("set_playing", "value"), &Spine::set_playing);
 	ClassDB::bind_method(D_METHOD("is_playing"), &Spine::is_playing);
 	ClassDB::bind_method(D_METHOD("set_auto_play", "value"), &Spine::set_auto_play);
@@ -1385,14 +1499,14 @@ void Spine::_bind_methods()
 	ClassDB::bind_method(D_METHOD("set_use_bounding_box", "value"), &Spine::set_use_bounding_box);
 	ClassDB::bind_method(D_METHOD("is_use_bounding_box"), &Spine::is_use_bounding_box);
 
-	ClassDB::bind_method(D_METHOD("add_internal_animations"), &Spine::add_internal_animations);
+	//ClassDB::bind_method(D_METHOD("add_internal_animations"), &Spine::add_internal_animations);
 	ClassDB::bind_method(D_METHOD("add_animation_by_attribute", "attribute"), &Spine::add_animation_by_attribute);
 	ClassDB::bind_method(D_METHOD("add_animation", "name", "loop", "delay", "track"), &Spine::add_animation, DEFVAL(0));
 	ClassDB::bind_method(D_METHOD("add_empty_animation", "mix", "delay", "track"), &Spine::add_empty_animation, DEFVAL(0));
 	ClassDB::bind_method(D_METHOD("set_animation", "name", "loop", "track"), &Spine::set_animation, DEFVAL(0));
 	ClassDB::bind_method(D_METHOD("set_empty_animation", "mix", "track"), &Spine::set_empty_animation, DEFVAL(0));
 	ClassDB::bind_method(D_METHOD("has_animation", "name"), &Spine::has_animation);
-	ClassDB::bind_method(D_METHOD("get_animations"), &Spine::get_animations);
+	ClassDB::bind_method(D_METHOD("get_animation_list"), &Spine::get_animation_list);
 
 	ClassDB::bind_method(D_METHOD("get_animation_duration", "name"), &Spine::get_animation_duration);
 	ClassDB::bind_method(D_METHOD("get_current_animation", "track"), &Spine::get_current_animation, DEFVAL(0));
@@ -1411,7 +1525,7 @@ void Spine::_bind_methods()
 	ClassDB::bind_method(D_METHOD("get_slot_color", "name"), &Spine::get_slot_color);
 
 	//ClassDB::bind_method(D_METHOD("is_end"), &Spine::is_end);
-	ClassDB::bind_method(D_METHOD("clear", "track"), &Spine::clear, DEFVAL(-1));
+	ClassDB::bind_method(D_METHOD("clear_track", "track"), &Spine::clear_track, DEFVAL(-1));
 	ClassDB::bind_method(D_METHOD("get_tracks"), &Spine::get_tracks);
 
 	ClassDB::bind_method(D_METHOD("get_attachment_node_bone", "node"), &Spine::get_attachment_node_bone);
@@ -1426,13 +1540,15 @@ void Spine::_bind_methods()
 	ClassDB::bind_method(D_METHOD("set_attachment_node_offset", "node", "offset"), &Spine::set_attachment_node_offset);
 	ClassDB::bind_method(D_METHOD("set_attachment_node_rotation", "node", "rotation"), &Spine::set_attachment_node_rotation);
 	ClassDB::bind_method(D_METHOD("set_attachment_node_scale", "node", "scale"), &Spine::set_attachment_node_scale);
-	ClassDB::bind_method(D_METHOD("seek", "delta"), &Spine::seek);
+	ClassDB::bind_method(D_METHOD("seek", "time"), &Spine::seek);
+	ClassDB::bind_method(D_METHOD("play", "delta"), &Spine::play);
 	ClassDB::bind_method(D_METHOD("tell"), &Spine::tell);
 
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "SpineSkeletonData", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_EDITOR), "set_resource", "get_resource");
-	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "internal_animations", PROPERTY_HINT_TYPE_STRING, "17/17:SpineAnimationAttri"), "set_internal_animations", "get_internal_animations");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "process_mode", PROPERTY_HINT_ENUM, "Fixed,Idle"), "set_animation_process_mode", "get_animation_process_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "animations", PROPERTY_HINT_NONE, "17/17:SpineAnimationAttri"), "set_animations", "get_animations");
+	//ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "internal_animations", PROPERTY_HINT_TYPE_STRING, "17/17:SpineAnimationAttri"), "set_internal_animations", "get_internal_animations");
+	//ADD_PROPERTY(PropertyInfo(Variant::INT, "process_mode", PROPERTY_HINT_ENUM, "Fixed,Idle"), "set_animation_process_mode", "get_animation_process_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "playing"), "set_playing", "is_playing");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "auto_play"), "set_auto_play", "is_auto_play");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "show_bone"), "set_show_bone", "is_show_bone");
@@ -1450,6 +1566,7 @@ void Spine::_bind_methods()
 	ADD_SIGNAL(MethodInfo("animation_ended", PropertyInfo(Variant::OBJECT, "animation")));
 	ADD_SIGNAL(MethodInfo("animation_event", PropertyInfo(Variant::OBJECT, "animation"), PropertyInfo(Variant::STRING, "event"), PropertyInfo(Variant::DICTIONARY, "params")));
 	ADD_SIGNAL(MethodInfo("ended"));
+	ADD_SIGNAL(MethodInfo("resource_changed"));
 
 
 	BIND_ENUM_CONSTANT(ANIMATION_PROCESS_FIXED);
@@ -1583,6 +1700,7 @@ void Spine::_update_bounding_box()
 {
 	if (!skeleton)
 		return;
+
 	if (use_bounding_box)
 	{
 		spSlot* slot;
@@ -1722,10 +1840,10 @@ void Spine::_update_bounding_box()
 //}
 
 Spine::Spine() :
-		batcher(this), skeleton(nullptr), state(nullptr), animation_process_mode(ANIMATION_PROCESS_FIXED)
-		, playing(false), auto_play(false), show_bone(false), speed_scale(1.0)
+		batcher(this), skeleton(nullptr), state(nullptr), animation_process_mode(ANIMATION_PROCESS_IDLE)
+		, playing(false), auto_play(true), show_bone(false), speed_scale(1.0)
 		, spine_offset(0.0, 0.0), spine_scale(1.0, 1.0), default_mix(0.0)/*, collision_whitelist(true)*/
-		, use_bounding_box(true)
+		, use_bounding_box(false)
 {
 	res = RES();
 	//world_verts.resize(1000); // Max number of vertices per mesh.
@@ -1736,10 +1854,10 @@ Spine::Spine() :
 Spine::~Spine()
 {
 	// cleanup
-	for (int i = 0; i < internal_animations.size(); ++i)
-	{
-		Ref<SpineAnimationAttri>(internal_animations[i])->unregister_owner(this);
-	}
+	//for (int i = 0; i < internal_animations.size(); ++i)
+	//{
+	//	Ref<SpineAnimationAttri>(internal_animations[i])->unregister_owner(this);
+	//}
 	_spine_dispose();
 	if (res.is_valid())
 		res->unregister_owner(this);

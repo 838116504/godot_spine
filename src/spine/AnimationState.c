@@ -33,8 +33,9 @@
 
 #define SUBSEQUENT 0
 #define FIRST 1
-#define HOLD 2
-#define HOLD_MIX 3
+#define HOLD_SUBSEQUENT 2
+#define HOLD_FIRST 3
+#define HOLD_MIX 4
 
 #define SETUP 1
 #define CURRENT 2
@@ -385,6 +386,7 @@ int spAnimationState_apply (spAnimationState* self, spSkeleton* skeleton) {
 		timelines = current->animation->timelines;
 		if ((i == 0 && mix == 1) || blend == SP_MIX_BLEND_ADD) {
 			for (ii = 0; ii < timelineCount; ii++) {
+                timeline = timelines[ii];
 			    if (timeline->type == SP_TIMELINE_ATTACHMENT) {
                     _spAnimationState_applyAttachmentTimeline(self, timeline, skeleton, animationTime, blend, -1);
 			    } else {
@@ -500,7 +502,11 @@ float _spAnimationState_applyMixingFrom (spAnimationState* self, spTrackEntry* t
 					timelineBlend = SP_MIX_BLEND_SETUP;
 					alpha = alphaMix;
 					break;
-				case HOLD:
+			    case HOLD_SUBSEQUENT:
+			        timelineBlend = blend;
+			        alpha = alphaHold;
+			        break;
+				case HOLD_FIRST:
 					timelineBlend = SP_MIX_BLEND_SETUP;
 					alpha = alphaHold;
 					break;
@@ -763,24 +769,13 @@ void _spAnimationState_setCurrent (spAnimationState* self, int index, spTrackEnt
 	_spEventQueue_start(internal->queue, current);
 }
 
-spTrackEntry* spAnimationState_setAnimationByNameWithData(spAnimationState* self, int trackIndex, const char* animationName, int/*bool*/loop, void* userData)
-{
-	spAnimation* animation = spSkeletonData_findAnimation(self->data->skeletonData, animationName);
-	if (!animation)
-		return NULL;
-	return spAnimationState_setAnimationWithData(self, trackIndex, animation, loop, userData);
-}
-
 /** Set the current animation. Any queued animations are cleared. */
 spTrackEntry* spAnimationState_setAnimationByName (spAnimationState* self, int trackIndex, const char* animationName, int/*bool*/loop) {
 	spAnimation* animation = spSkeletonData_findAnimation(self->data->skeletonData, animationName);
-	if (!animation)
-		return NULL;
 	return spAnimationState_setAnimation(self, trackIndex, animation, loop);
 }
 
-spTrackEntry* spAnimationState_setAnimationWithData(spAnimationState* self, int trackIndex, spAnimation* animation, int/*bool*/loop, void* userData)
-{
+spTrackEntry* spAnimationState_setAnimation (spAnimationState* self, int trackIndex, spAnimation* animation, int/*bool*/loop) {
 	spTrackEntry* entry;
 	_spAnimationState* internal = SUB_CAST(_spAnimationState, self);
 	int interrupt = 1;
@@ -798,38 +793,21 @@ spTrackEntry* spAnimationState_setAnimationWithData(spAnimationState* self, int 
 			_spAnimationState_disposeNext(self, current);
 	}
 	entry = _spAnimationState_trackEntry(self, trackIndex, animation, loop, current);
-	entry->userData = userData;
 	_spAnimationState_setCurrent(self, trackIndex, entry, interrupt);
 	_spEventQueue_drain(internal->queue);
 	return entry;
 }
 
-spTrackEntry* spAnimationState_setAnimation (spAnimationState* self, int trackIndex, spAnimation* animation, int/*bool*/loop) {
-	return spAnimationState_setAnimationWithData(self, trackIndex, animation, loop, NULL);
-}
-
-
 /** Adds an animation to be played delay seconds after the current or last queued animation, taking into account any mix
  * duration. */
-spTrackEntry* spAnimationState_addAnimationByNameWithData (spAnimationState* self, int trackIndex, const char* animationName,
-	int/*bool*/loop, float delay, void* userData) {
-	spAnimation* animation = spSkeletonData_findAnimation(self->data->skeletonData, animationName);
-	if (!animation)
-		return NULL;
-	return spAnimationState_addAnimationWithData(self, trackIndex, animation, loop, delay, userData);
-}
-
 spTrackEntry* spAnimationState_addAnimationByName (spAnimationState* self, int trackIndex, const char* animationName,
 	int/*bool*/loop, float delay
 ) {
-	return spAnimationState_addAnimationByNameWithData(self, trackIndex, animationName, loop, delay, NULL);
+	spAnimation* animation = spSkeletonData_findAnimation(self->data->skeletonData, animationName);
+	return spAnimationState_addAnimation(self, trackIndex, animation, loop, delay);
 }
 
 spTrackEntry* spAnimationState_addAnimation (spAnimationState* self, int trackIndex, spAnimation* animation, int/*bool*/loop, float delay) {
-	return spAnimationState_addAnimationWithData(self, trackIndex, animation, loop, delay, NULL);
-}
-
-spTrackEntry* spAnimationState_addAnimationWithData (spAnimationState* self, int trackIndex, spAnimation* animation, int/*bool*/loop, float delay, void* userData) {
 	spTrackEntry* entry;
 	_spAnimationState* internal = SUB_CAST(_spAnimationState, self);
 	spTrackEntry* last = _spAnimationState_expandToIndex(self, trackIndex);
@@ -839,7 +817,6 @@ spTrackEntry* spAnimationState_addAnimationWithData (spAnimationState* self, int
 	}
 
 	entry = _spAnimationState_trackEntry(self, trackIndex, animation, loop, last);
-	entry->userData = userData;
 
 	if (!last) {
 		_spAnimationState_setCurrent(self, trackIndex, entry, 1);
@@ -864,24 +841,8 @@ spTrackEntry* spAnimationState_addAnimationWithData (spAnimationState* self, int
 	return entry;
 }
 
-spTrackEntry* spAnimationState_setEmptyAnimationWithData(spAnimationState* self, int trackIndex, float mixDuration, void* userData) {
-	spTrackEntry* entry = spAnimationState_setAnimationWithData(self, trackIndex, SP_EMPTY_ANIMATION, 0, userData);
-	entry->mixDuration = mixDuration;
-	entry->trackEnd = mixDuration;
-	return entry;
-}
-
 spTrackEntry* spAnimationState_setEmptyAnimation(spAnimationState* self, int trackIndex, float mixDuration) {
 	spTrackEntry* entry = spAnimationState_setAnimation(self, trackIndex, SP_EMPTY_ANIMATION, 0);
-	entry->mixDuration = mixDuration;
-	entry->trackEnd = mixDuration;
-	return entry;
-}
-
-spTrackEntry* spAnimationState_addEmptyAnimationWithData(spAnimationState* self, int trackIndex, float mixDuration, float delay, void* userData) {
-	spTrackEntry* entry;
-	if (delay <= 0) delay -= mixDuration;
-	entry = spAnimationState_addAnimationWithData(self, trackIndex, SP_EMPTY_ANIMATION, 0, delay, userData);
 	entry->mixDuration = mixDuration;
 	entry->trackEnd = mixDuration;
 	return entry;
@@ -1068,8 +1029,7 @@ void _spTrackEntry_computeHold(spTrackEntry* entry, spAnimationState* state) {
 	if (to != 0 && to->holdPrevious) {
 		for (i = 0; i < timelinesCount; i++) {
 			int id = spTimeline_getPropertyId(timelines[i]);
-			_spAnimationState_addPropertyID(state, id);
-			timelineMode[i] = HOLD;
+			timelineMode[i] = _spAnimationState_addPropertyID(state, id) ? HOLD_FIRST : HOLD_SUBSEQUENT;
 		}
 		return;
 	}
@@ -1095,7 +1055,7 @@ void _spTrackEntry_computeHold(spTrackEntry* entry, spAnimationState* state) {
 				}
 				break;
 			}
-			timelineMode[i] = HOLD;
+			timelineMode[i] = HOLD_FIRST;
 		}
 	}
 }

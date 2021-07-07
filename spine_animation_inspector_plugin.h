@@ -27,71 +27,24 @@
  * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#ifndef SPINE_BATCHER_H
-#define SPINE_BATCHER_H
+#pragma once
 
-#include "scene/2d/node_2d.h"
+#include "editor/editor_inspector.h"
 
-class SpineBatcher {
 
-	Node2D *owner;
+class SpineAnimationInspectorPlugin : public EditorInspectorPlugin
+{
+	GDCLASS(SpineAnimationInspectorPlugin, EditorInspectorPlugin);
 
-	enum {
-		CMD_DRAW_ELEMENT,
-		//CMD_SET_BLEND_MODE,
-	};
-
-	struct Command {
-		Command() {}
-		virtual ~Command() {}
-
-		int cmd;
-		virtual void draw(RID ci) {}
-	};
-
-	/*struct SetBlendMode : Command {
-		int mode;
-
-		SetBlendMode(int p_mode);
-		void draw(RID ci);
-	};*/
-
-	struct Elements : Command {
-		Ref<Texture> texture;
-		int vertices_count;
-		int indies_count;
-		Vector2 *vertices;
-		Color *colors;
-		Vector2 *uvs;
-		int* indies;
-
-		Elements();
-		~Elements();
-		void draw(RID ci);
-	};
-
-	Elements *elements;
-
-	List<Command *> element_list;
-	List<Command *> drawed_list;
-
-	void push_elements();
+protected:
+	//static void _bind_methods();
 
 public:
+	virtual bool can_handle(Object *p_object);
+	virtual bool parse_property(Object *p_object, Variant::Type p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage);
 
-	void reset();
+	//void _on_spine_resource_changed(Node* p_spine, const Vector<Variant>& p_propEditors);
 
-	void add(Ref<Texture> p_texture,
-		const float* p_vertices, const float* p_uvs, int p_vertices_count,
-		const unsigned short* p_indies, int p_indies_count,
-		Color *p_color);
-
-	//void add_set_blender_mode(bool p_mode);
-
-	void flush();
-
-	SpineBatcher(Node2D *owner);
-	~SpineBatcher();
+	SpineAnimationInspectorPlugin() {};
+	virtual ~SpineAnimationInspectorPlugin() {};
 };
-
-#endif // SPINE_BATCHER_H
