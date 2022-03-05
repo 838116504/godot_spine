@@ -4,8 +4,8 @@ I changed many things.
 
 I dont test any thing, so it maybe have bugs.
 
-Current Spine runtime version for this branch ** 3.8 ** ([Github link](https://github.com/EsotericSoftware/spine-runtimes/tree/3.8/spine-c)).
-This module support for godot game engine 3.2.1
+Current Spine runtime version for this branch ** 4.0 ** ([Github link](https://github.com/EsotericSoftware/spine-runtimes/tree/4.0/spine-c)).
+This module support for godot game engine 3.4.3
 
 ## About the license
 
@@ -19,7 +19,7 @@ Fix the problem when load json that have skin no attachment(SkeletonJson.c >> sp
 
 Modify spAnimationStateData_setMixByName function return type to int for check whether set success(AnimationStateData.c and AnimationStateData.h changed).
 
-Added 6 add/set animation function for set spTrackEntry's userData before animation start.(AnimationState.h and AnimationState.c >> spAnimationState_setAnimationByNameWithData, spAnimationState_setAnimationByName, spAnimationState_setAnimationWithData, spAnimationState_setAnimation, spAnimationState_addAnimationByName, spAnimationState_addAnimationByNameWithData, spAnimationState_addAnimation, spAnimationState_addAnimationWithData functions changed.).
+~~Added 6 add/set animation function for set spTrackEntry's userData before animation start.(AnimationState.h and AnimationState.c >> spAnimationState_setAnimationByNameWithData, spAnimationState_setAnimationByName, spAnimationState_setAnimationWithData, spAnimationState_setAnimation, spAnimationState_addAnimationByName, spAnimationState_addAnimationByNameWithData, spAnimationState_addAnimation, spAnimationState_addAnimationWithData functions changed.).~~
 
 Other chanage see my commit history.
 
