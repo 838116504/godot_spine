@@ -40,15 +40,10 @@ extern "C" {
 
 typedef struct spAtlasAttachmentLoader {
 	spAttachmentLoader super;
-	spAtlas* atlas;
+	spAtlas *atlas;
 } spAtlasAttachmentLoader;
 
-SP_API spAtlasAttachmentLoader* spAtlasAttachmentLoader_create (spAtlas* atlas);
-
-#ifdef SPINE_SHORT_NAMES
-typedef spAtlasAttachmentLoader AtlasAttachmentLoader;
-#define AtlasAttachmentLoader_create(...) spAtlasAttachmentLoader_create(__VA_ARGS__)
-#endif
+SP_API spAtlasAttachmentLoader *spAtlasAttachmentLoader_create(spAtlas *atlas);
 
 #ifdef __cplusplus
 }

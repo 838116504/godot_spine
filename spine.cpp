@@ -904,7 +904,7 @@ bool Spine::has_slot_attachment(const String& p_slot, const String& p_attachment
 PoolStringArray Spine::get_slot_attachments(const String& p_name) const
 {
 	ERR_FAIL_COND_V(!skeleton, PoolStringArray());
-	int slotId = spSkeletonData_findSlotIndex(skeleton->data, p_name.utf8().get_data());
+	int slotId = spSkeletonData_findSlot(skeleton->data, p_name.utf8().get_data())->index;
 	ERR_FAIL_COND_V(slotId == -1, PoolStringArray());
 	spSkin* skin;
 	if (!skeleton->skin)

@@ -41,12 +41,12 @@ extern "C" {
 struct spSkeleton;
 
 typedef struct spIkConstraint {
-	spIkConstraintData* const data;
+	spIkConstraintData *const data;
 
 	int bonesCount;
-	spBone** bones;
+	spBone **bones;
 
-	spBone* target;
+	spBone *target;
 	int bendDirection;
 	int /*boolean*/ compress;
 	int /*boolean*/ stretch;
@@ -54,38 +54,20 @@ typedef struct spIkConstraint {
 	float softness;
 
 	int /*boolean*/ active;
-
-#ifdef __cplusplus
-	spIkConstraint() :
-		data(0),
-		bonesCount(0),
-		bones(0),
-		target(0),
-		bendDirection(0),
-		stretch(0),
-		mix(0),
-		softness(0),
-		active(0) {
-	}
-#endif
 } spIkConstraint;
 
-SP_API spIkConstraint* spIkConstraint_create (spIkConstraintData* data, const struct spSkeleton* skeleton);
-SP_API void spIkConstraint_dispose (spIkConstraint* self);
+SP_API spIkConstraint *spIkConstraint_create(spIkConstraintData *data, const struct spSkeleton *skeleton);
 
-SP_API void spIkConstraint_apply (spIkConstraint* self);
+SP_API void spIkConstraint_dispose(spIkConstraint *self);
 
-SP_API void spIkConstraint_apply1 (spBone* bone, float targetX, float targetY, int /*boolean*/ compress, int /*boolean*/ stretch, int /*boolean*/ uniform, float alpha);
-SP_API void spIkConstraint_apply2 (spBone* parent, spBone* child, float targetX, float targetY, int bendDirection, int /*boolean*/ stretch, float softness, float alpha);
+SP_API void spIkConstraint_update(spIkConstraint *self);
 
-#ifdef SPINE_SHORT_NAMES
-typedef spIkConstraint IkConstraint;
-#define IkConstraint_create(...) spIkConstraint_create(__VA_ARGS__)
-#define IkConstraint_dispose(...) spIkConstraint_dispose(__VA_ARGS__)
-#define IkConstraint_apply(...) spIkConstraint_apply(__VA_ARGS__)
-#define IkConstraint_apply1(...) spIkConstraint_apply1(__VA_ARGS__)
-#define IkConstraint_apply2(...) spIkConstraint_apply2(__VA_ARGS__)
-#endif
+SP_API void
+spIkConstraint_apply1(spBone *bone, float targetX, float targetY, int /*boolean*/ compress, int /*boolean*/ stretch,
+					  int /*boolean*/ uniform, float alpha);
+
+SP_API void spIkConstraint_apply2(spBone *parent, spBone *child, float targetX, float targetY, int bendDirection,
+								  int /*boolean*/ stretch, int /*boolean*/ uniform, float softness, float alpha);
 
 #ifdef __cplusplus
 }

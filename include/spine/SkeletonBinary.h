@@ -44,25 +44,20 @@ struct spAtlasAttachmentLoader;
 
 typedef struct spSkeletonBinary {
 	float scale;
-	spAttachmentLoader* attachmentLoader;
-	const char* const error;
+	spAttachmentLoader *attachmentLoader;
+	const char *const error;
 } spSkeletonBinary;
 
-SP_API spSkeletonBinary* spSkeletonBinary_createWithLoader (spAttachmentLoader* attachmentLoader);
-SP_API spSkeletonBinary* spSkeletonBinary_create (spAtlas* atlas);
-SP_API void spSkeletonBinary_dispose (spSkeletonBinary* self);
+SP_API spSkeletonBinary *spSkeletonBinary_createWithLoader(spAttachmentLoader *attachmentLoader);
 
-SP_API spSkeletonData* spSkeletonBinary_readSkeletonData (spSkeletonBinary* self, const unsigned char* binary, const int length);
-SP_API spSkeletonData* spSkeletonBinary_readSkeletonDataFile (spSkeletonBinary* self, const char* path);
+SP_API spSkeletonBinary *spSkeletonBinary_create(spAtlas *atlas);
 
-#ifdef SPINE_SHORT_NAMES
-typedef spSkeletonBinary SkeletonBinary;
-#define SkeletonBinary_createWithLoader(...) spSkeletonBinary_createWithLoader(__VA_ARGS__)
-#define SkeletonBinary_create(...) spSkeletonBinary_create(__VA_ARGS__)
-#define SkeletonBinary_dispose(...) spSkeletonBinary_dispose(__VA_ARGS__)
-#define SkeletonBinary_readSkeletonData(...) spSkeletonBinary_readSkeletonData(__VA_ARGS__)
-#define SkeletonBinary_readSkeletonDataFile(...) spSkeletonBinary_readSkeletonDataFile(__VA_ARGS__)
-#endif
+SP_API void spSkeletonBinary_dispose(spSkeletonBinary *self);
+
+SP_API spSkeletonData *
+spSkeletonBinary_readSkeletonData(spSkeletonBinary *self, const unsigned char *binary, const int length);
+
+SP_API spSkeletonData *spSkeletonBinary_readSkeletonDataFile(spSkeletonBinary *self, const char *path);
 
 #ifdef __cplusplus
 }

@@ -27,37 +27,35 @@
  * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#ifndef SPINE_SPINE_H_
-#define SPINE_SPINE_H_
+#ifndef SPINE_DEBUG_H_
+#define SPINE_DEBUG_H_
 
-#include <spine/dll.h>
-#include <spine/Array.h>
-#include <spine/Animation.h>
-#include <spine/AnimationState.h>
-#include <spine/AnimationStateData.h>
-#include <spine/Atlas.h>
-#include <spine/AtlasAttachmentLoader.h>
-#include <spine/Attachment.h>
-#include <spine/AttachmentLoader.h>
-#include <spine/Bone.h>
-#include <spine/BoneData.h>
-#include <spine/RegionAttachment.h>
-#include <spine/VertexAttachment.h>
-#include <spine/MeshAttachment.h>
-#include <spine/BoundingBoxAttachment.h>
-#include <spine/ClippingAttachment.h>
-#include <spine/PointAttachment.h>
-#include <spine/Skeleton.h>
-#include <spine/SkeletonBounds.h>
-#include <spine/SkeletonData.h>
-#include <spine/SkeletonBinary.h>
-#include <spine/SkeletonJson.h>
-#include <spine/Skin.h>
-#include <spine/Slot.h>
-#include <spine/SlotData.h>
-#include <spine/SkeletonClipping.h>
-#include <spine/Event.h>
-#include <spine/EventData.h>
-#include <spine/VertexEffect.h>
+#include <spine/spine.h>
 
-#endif /* SPINE_SPINE_H_ */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void spDebug_printSkeletonData(spSkeletonData *skeletonData);
+
+void spDebug_printAnimation(spAnimation *animation);
+
+void spDebug_printTimeline(spTimeline *timeline);
+
+void spDebug_printBoneDatas(spBoneData **boneDatas, int numBoneDatas);
+
+void spDebug_printBoneData(spBoneData *boneData);
+
+void spDebug_printSkeleton(spSkeleton *skeleton);
+
+void spDebug_printBones(spBone **bones, int numBones);
+
+void spDebug_printBone(spBone *bone);
+
+void spDebug_printFloats(float *values, int numFloats);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

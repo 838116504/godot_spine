@@ -35,47 +35,65 @@ typedef struct {
 	float attachmentTime;
 } _spSlot;
 
-spSlot* spSlot_create (spSlotData* data, spBone* bone) {
-	spSlot* self = SUPER(NEW(_spSlot));
-	CONST_CAST(spSlotData*, self->data) = data;
-	CONST_CAST(spBone*, self->bone) = bone;
+spSlot *spSlot_create(spSlotData *data, spBone *bone) {
+	spSlot *self = SUPER(NEW(_spSlot));
+	CONST_CAST(spSlotData *, self->data) = data;
+	CONST_CAST(spBone *, self->bone) = bone;
 	spColor_setFromFloats(&self->color, 1, 1, 1, 1);
 	self->darkColor = data->darkColor == 0 ? 0 : spColor_create();
 	spSlot_setToSetupPose(self);
 	return self;
 }
 
-void spSlot_dispose (spSlot* self) {
+void spSlot_dispose(spSlot *self) {
 	FREE(self->deform);
 	FREE(self->darkColor);
 	FREE(self);
 }
 
-void spSlot_setAttachment (spSlot* self, spAttachment* attachment) {
-	if (attachment == self->attachment) return;
-	CONST_CAST(spAttachment*, self->attachment) = attachment;
-	SUB_CAST(_spSlot, self)->attachmentTime = self->bone->skeleton->time;
-	self->deformCount = 0;
+static int isVertexAttachment(spAttachment *attachment) {
+	if (attachment == NULL) return 0;
+	switch (attachment->type) {
+		case SP_ATTACHMENT_BOUNDING_BOX:
+		case SP_ATTACHMENT_CLIPPING:
+		case SP_ATTACHMENT_MESH:
+		case SP_ATTACHMENT_PATH:
+			return -1;
+		default:
+			return 0;
+	}
 }
 
-void spSlot_setAttachmentTime (spSlot* self, float time) {
+void spSlot_setAttachment(spSlot *self, spAttachment *attachment) {
+	if (attachment == self->attachment) return;
+
+	if (!isVertexAttachment(attachment) ||
+		!isVertexAttachment(self->attachment) || (SUB_CAST(spVertexAttachment, attachment)->deformAttachment != SUB_CAST(spVertexAttachment, self->attachment)->deformAttachment)) {
+		self->deformCount = 0;
+	}
+
+	CONST_CAST(spAttachment *, self->attachment) = attachment;
+	SUB_CAST(_spSlot, self)->attachmentTime = self->bone->skeleton->time;
+}
+
+void spSlot_setAttachmentTime(spSlot *self, float time) {
 	SUB_CAST(_spSlot, self)->attachmentTime = self->bone->skeleton->time - time;
 }
 
-float spSlot_getAttachmentTime (const spSlot* self) {
-	return self->bone->skeleton->time - SUB_CAST(_spSlot, self) ->attachmentTime;
+float spSlot_getAttachmentTime(const spSlot *self) {
+	return self->bone->skeleton->time - SUB_CAST(_spSlot, self)->attachmentTime;
 }
 
-void spSlot_setToSetupPose (spSlot* self) {
+void spSlot_setToSetupPose(spSlot *self) {
 	spColor_setFromColor(&self->color, &self->data->color);
 	if (self->darkColor) spColor_setFromColor(self->darkColor, self->data->darkColor);
 
 	if (!self->data->attachmentName)
 		spSlot_setAttachment(self, 0);
 	else {
-		spAttachment* attachment = spSkeleton_getAttachmentForSlotIndex(
-			self->bone->skeleton, self->data->index, self->data->attachmentName);
-		CONST_CAST(spAttachment*, self->attachment) = 0;
+		spAttachment *attachment = spSkeleton_getAttachmentForSlotIndex(
+				self->bone->skeleton, self->data->index, self->data->attachmentName);
+		CONST_CAST(spAttachment *, self->attachment) = 0;
 		spSlot_setAttachment(self, attachment);
 	}
 }

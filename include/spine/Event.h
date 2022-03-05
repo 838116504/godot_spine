@@ -38,11 +38,11 @@ extern "C" {
 #endif
 
 typedef struct spEvent {
-	spEventData* const data;
+	spEventData *const data;
 	float const time;
 	int intValue;
 	float floatValue;
-	const char* stringValue;
+	const char *stringValue;
 	float volume;
 	float balance;
 
@@ -59,14 +59,9 @@ typedef struct spEvent {
 #endif
 } spEvent;
 
-SP_API spEvent* spEvent_create (float time, spEventData* data);
-SP_API void spEvent_dispose (spEvent* self);
+SP_API spEvent *spEvent_create(float time, spEventData *data);
 
-#ifdef SPINE_SHORT_NAMES
-typedef spEvent Event;
-#define Event_create(...) spEvent_create(__VA_ARGS__)
-#define Event_dispose(...) spEvent_dispose(__VA_ARGS__)
-#endif
+SP_API void spEvent_dispose(spEvent *self);
 
 #ifdef __cplusplus
 }

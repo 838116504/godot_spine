@@ -148,7 +148,7 @@ char* _spUtil_readFile(const char* p_path, int* p_length) {
 	String str_path = String::utf8(p_path);
 	FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
 	if(!f) {
-		ERR_PRINTS(String("Unable to read file :") + String(p_path));
+		ERR_PRINT(String("Unable to read file :") + String(p_path));
 	}
 	ERR_FAIL_COND_V(!f, NULL);
 

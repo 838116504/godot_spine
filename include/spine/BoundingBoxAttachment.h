@@ -42,14 +42,10 @@ extern "C" {
 
 typedef struct spBoundingBoxAttachment {
 	spVertexAttachment super;
+	spColor color;
 } spBoundingBoxAttachment;
 
-SP_API spBoundingBoxAttachment* spBoundingBoxAttachment_create (const char* name);
-
-#ifdef SPINE_SHORT_NAMES
-typedef spBoundingBoxAttachment BoundingBoxAttachment;
-#define BoundingBoxAttachment_create(...) spBoundingBoxAttachment_create(__VA_ARGS__)
-#endif
+SP_API spBoundingBoxAttachment *spBoundingBoxAttachment_create(const char *name);
 
 #ifdef __cplusplus
 }
